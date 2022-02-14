@@ -45,7 +45,7 @@ def mnist_extr_label_noniid(train_dataset, args):
         for j in range(10):
             dict_users_train[i] = np.concatenate((dict_users_train[i], idxs[j * 6000 + i * num_per_equal: j * 6000 + (1 + i) * num_per_equal]), axis=0)
 
-    # noniid init part
+    # noniid init parts to shard
     residue_noniid = 60000 - num_per_equal * 10 * args.num_users
     num_samples = int((args.total_samples - num_per_equal*10) / args.num_class)
     num_shards_train, num_imgs_train = int(residue_noniid / num_samples), num_samples
