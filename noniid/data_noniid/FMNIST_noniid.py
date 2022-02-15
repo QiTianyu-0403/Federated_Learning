@@ -3,51 +3,21 @@ import numpy as np
 from init.init_resnet18 import normalize_data_mnist
 from noniid.file_flow import split_integer, test_label
 
-def get_dataset_mnist_noniid(args):
+def get_dataset_fmnist_noniid(args):
     transform_train_mnist = normalize_data_mnist()
 
-    train_dataset = torchvision.datasets.MNIST('../data', train=True, download=False,
+    train_dataset = torchvision.datasets.FashionMNIST('../data', train=True, download=False,
                                    transform=transform_train_mnist)
 
     if args.noniid_model == 'label_noniid':
-        data_users_train = mnist_extr_label_noniid(train_dataset, args)
+        data_users_train = fmnist_extr_label_noniid(train_dataset, args)
     if args.noniid_model == 'quantity_noniid':
-        data_users_train = mnist_extr_quantity_noniid(train_dataset, args)
+        data_users_train = fmnist_extr_quantity_noniid(train_dataset, args)
     if args.noniid_model == 'iid':
-        data_users_train = mnist_extr_iid(train_dataset, args)
+        data_users_train = fmnist_extr_iid(train_dataset, args)
     return data_users_train
 
-def sum_list(list, n):
-    sum = 0
-    for i in range(n):
-        sum += list[i]
-    return sum
-
-def regular_mnist(idxs_labels):
-    num_label = np.array([5923, 6742, 5958, 6131, 5842, 5421, 5918, 6265, 5851, 5949])
-
-    # shuffle
-    for i in range(10):
-        np.random.shuffle(idxs_labels[0][sum_list(num_label, i):sum_list(num_label, i+1)])
-
-    # cut surplus
-    surplus_arr = np.hstack((idxs_labels[:,11923:12665], idxs_labels[:,24623:24754], idxs_labels[:,47935:48200]))
-
-    # piece together
-    return_arr = np.array([[], []], dtype='int32')
-    counter = 0
-    for i in range(10):
-        if num_label[i] < 6000:
-            return_arr = np.hstack((return_arr, idxs_labels[:, sum_list(num_label, i):sum_list(num_label, i+1)]))
-            return_arr = np.hstack((return_arr, surplus_arr[:, counter:counter + 6000 - num_label[i]]))
-            counter += 6000 - num_label[i]
-        if num_label[i] > 6000:
-            return_arr = np.hstack((return_arr, idxs_labels[:, sum_list(num_label, i):6000 + sum_list(num_label, i)]))
-    print(return_arr.shape)
-
-    return return_arr
-
-def mnist_extr_label_noniid(train_dataset, args):
+def fmnist_extr_label_noniid(train_dataset, args):
     dict_users_train = {i: np.array([]) for i in range(args.num_users)}
     idxs = np.arange(60000)
     labels = np.array(train_dataset.targets)
@@ -61,8 +31,9 @@ def mnist_extr_label_noniid(train_dataset, args):
     idxs_labels = np.vstack((idxs, labels))
     idxs_labels = idxs_labels[:, idxs_labels[1, :].argsort()]
 
-    # regular data
-    idxs_labels = regular_mnist(idxs_labels)
+    # shuffle
+    for i in range(10):
+        np.random.shuffle(idxs_labels[0][6000 * i:6000 * (i+1)])
     idxs = idxs_labels[0, :]
 
     # equal part
@@ -70,7 +41,7 @@ def mnist_extr_label_noniid(train_dataset, args):
         for j in range(10):
             dict_users_train[i] = np.concatenate((dict_users_train[i], idxs[j * 6000 + i * num_per_equal: j * 6000 + (1 + i) * num_per_equal]), axis=0)
 
-    # noniid init parts to shard
+    # noniid init part
     residue_noniid = 60000 - num_per_equal * 10 * args.num_users
     num_samples = int((args.total_samples - num_per_equal*10) / args.num_class)
     num_shards_train, num_imgs_train = int(residue_noniid / num_samples), num_samples
@@ -104,7 +75,7 @@ def mnist_extr_label_noniid(train_dataset, args):
     test_label(dict_users_train, train_dataset)
     return dict_users_train
 
-def mnist_extr_quantity_noniid(train_dataset, args):
+def fmnist_extr_quantity_noniid(train_dataset, args):
     dict_users_train = {i: np.array([]) for i in range(args.num_users)}
     idxs = np.arange(60000)
     labels = np.array(train_dataset.targets)
@@ -113,8 +84,9 @@ def mnist_extr_quantity_noniid(train_dataset, args):
     idxs_labels = np.vstack((idxs, labels))
     idxs_labels = idxs_labels[:, idxs_labels[1, :].argsort()]
 
-    # regular data
-    idxs_labels = regular_mnist(idxs_labels)
+    # shuffle
+    for i in range(10):
+        np.random.shuffle(idxs_labels[0][6000 * i:6000 * (i+1)])
     idxs = idxs_labels[0, :]
 
     # equal difference compute
@@ -139,7 +111,7 @@ def mnist_extr_quantity_noniid(train_dataset, args):
     test_label(dict_users_train, train_dataset)
     return dict_users_train
 
-def mnist_extr_iid(train_dataset, args):
+def fmnist_extr_iid(train_dataset, args):
     dict_users_train = {i: np.array([]) for i in range(args.num_users)}
     idxs = np.arange(60000)
     labels = np.array(train_dataset.targets)
@@ -148,8 +120,9 @@ def mnist_extr_iid(train_dataset, args):
     idxs_labels = np.vstack((idxs, labels))
     idxs_labels = idxs_labels[:, idxs_labels[1, :].argsort()]
 
-    # regular data
-    idxs_labels = regular_mnist(idxs_labels)
+    # shuffle
+    for i in range(10):
+        np.random.shuffle(idxs_labels[0][6000 * i:6000 * (i+1)])
     idxs = idxs_labels[0, :]
 
     num_per_user = int(args.total_samples/10)
