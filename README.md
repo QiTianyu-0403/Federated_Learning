@@ -20,3 +20,20 @@ In deep learning, the **Convolutional Neural Network** (CNN) is a class of artif
 > Working with datasets: Cifar10, MNIST, FMNIST.
 
 - **LSTM**
+
+**Long short-term memory** (LSTM) is an artificial recurrent neural network (RNN) architecture used in the field of deep learning. LSTM networks are well-suited to classifying, processing and making predictions based on time series data.
+
+> Working with datasets: Shakespeare.
+
+## Environment
+
+- Python >= 3.6.0
+- Pytorch >= 1.7.0
+- Torchvision >= 0.8.0
+
+## Datasets
+
+- Cifar10: Consist of 60000 32x32 color images in 10 classes, with 6000 images per class. There are 50000 training images and 10000 test images.
+- MNIST: Consist of 70000 28x28 gray images in 10 classes. There are 60000 training images and 10000 test images.
+- FasionMNIST: Consist of 70000 28x28 gray images in 10 classes, with 7000 images per class. There are 60000 training images and 10000 test images.
+- Shakespeare: Consist of 1146 local devices, a txt file.
