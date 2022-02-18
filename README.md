@@ -32,6 +32,8 @@ In deep learning, the **Convolutional Neural Network** (CNN) is a class of artif
 - FasionMNIST: Consist of 70000 28x28 gray images in 10 classes, with 7000 images per class. There are 60000 training images and 10000 test images.
 - Shakespeare: Consist of 1146 local devices, a txt file.
 
+All datasets will be saved at ``/data/``.
+
 ***The models and the datasets must match!!! Otherwise an error will occur.*** ❗️
 
 ## Environment 🐍
@@ -54,6 +56,8 @@ This file is used to assign the datasets. The address is ``/noniid/setting.py``.
 - ``--total_samples``: In ``iid`` and ``label_noniid`` models, this means the number of data of each client. In ``quantity_noniid`` model, this means the mean number of data of all clients.
 - ``--rate_unbalance``: In ``label_noniid``, this means the offset of the data label. It is a number less than 1, which represents the proportion of noniid.
 - ``--num_class``: In ``label_noniid``, this means the number of labels of each client. 
+
+If you don't have dataset, you should change the ``download=True`` in ``/noniid/data_noniid/Cifar_noniid.py/get_dataset_cifar10_noniid``, ``/noniid/data_noniid/MNIST_noniid.py/get_dataset_mnist_noniid`` and ``/noniid/data_noniid/FMNIST_noniid.py/get_dataset_fmnist_noniid``.
 
 #### 2. main.py
 
