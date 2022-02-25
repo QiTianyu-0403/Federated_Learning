@@ -28,13 +28,13 @@ def test_label(dict_user_train, train_dataset):
 
 def user_noniid_in_file(dict_users_train, args):
     if args.noniid_model == 'label_noniid':
-        file_name = './temp/' + args.data + '_' + args.noniid_model + '_users' + str(args.num_users) +\
+        file_name = './temp/' + args.data + '/' + args.data + '_' + args.noniid_model + '_users' + str(args.num_users) +\
                     '_data' + str(args.total_samples) + '_unbalance' + str(args.rate_unbalance) + '.csv'
     if args.noniid_model == 'quantity_noniid':
-        file_name = './temp/' + args.data + '_' + args.noniid_model + '_users' + str(args.num_users) +\
+        file_name = './temp/' + args.data + '/' + args.data + '_' + args.noniid_model + '_users' + str(args.num_users) +\
                     '_data' + str(args.total_samples) + '.csv'
     if args.noniid_model == 'iid':
-        file_name = './temp/' + args.data + '_' + args.noniid_model + '_users' + str(args.num_users) +\
+        file_name = './temp/' + args.data + '/' + args.data + '_' + args.noniid_model + '_users' + str(args.num_users) +\
                     '_data' + str(args.total_samples) + '.csv'
     frame = pd.DataFrame.from_dict(dict_users_train, orient='index')
 
@@ -42,13 +42,13 @@ def user_noniid_in_file(dict_users_train, args):
 
 def user_out_file(args):
     if args.noniid_model == 'label_noniid':
-        file_name = './noniid/temp/' + args.data + '_' + args.noniid_model + '_users' + str(args.num_users) +\
+        file_name = './noniid/temp/' + args.data + '/' + args.data + '_' + args.noniid_model + '_users' + str(args.num_users) +\
                     '_data' + str(args.total_samples) + '_unbalance' + str(args.rate_unbalance) + '.csv'
     if args.noniid_model == 'quantity_noniid':
-        file_name = './noniid/temp/' + args.data + '_' + args.noniid_model + '_users' + str(args.num_users) +\
+        file_name = './noniid/temp/' + args.data + '/' + args.data + '_' + args.noniid_model + '_users' + str(args.num_users) +\
                     '_data' + str(args.total_samples) + '.csv'
     if args.noniid_model == 'iid':
-        file_name = './noniid/temp/' + args.data + '_' + args.noniid_model + '_users' + str(args.num_users) +\
+        file_name = './noniid/temp/' + args.data + '/' + args.data + '_' + args.noniid_model + '_users' + str(args.num_users) +\
                     '_data' + str(args.total_samples) + '.csv'
     frame = pd.read_csv(file_name)
     train_idx = []
