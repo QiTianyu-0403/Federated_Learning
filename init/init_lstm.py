@@ -7,12 +7,17 @@ def load_data(args):
     load data from txt (or make Non-IID data)
     """
     data_path = './data/' + args.data + '/' + args.data + '.txt'
+    data_idx_path = './noniid/temp/Shakespeare/' + str(args.idx_user) + '.txt'
     data = open(data_path, 'r').read()
+    data_idx = open(data_idx_path, 'r').read()
     chars = sorted(list(set(data)))
     data_size, vocab_size = len(data), len(chars)
+    chars_idx = sorted(list(set(data_idx)))
+    data_idx_size, vocab_idx_size = len(data_idx), len(chars_idx)
 
     print("-----------load data...-----------------")
     print("Data has {} characters, {} unique".format(data_size, vocab_size))
+    print("Client {} has {} characters, {} unique".format(args.idx_user, data_idx_size, vocab_idx_size))
     print("----------------------------------------")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -21,10 +26,10 @@ def load_data(args):
     char_to_ix = {ch: i for i, ch in enumerate(chars)}
     ix_to_char = {i: ch for i, ch in enumerate(chars)}
 
-    data = list(data)
+    data = list(data_idx)
 
-    data_train = data[0: int(data_size * 0.8)]
-    data_test = data[int(data_size * 0.8): data_size-1]
+    data_train = data[0: int(data_idx_size * 0.8)]
+    data_test = data[int(data_idx_size * 0.8): data_idx_size-1]
 
     for i, ch in enumerate(data_train):
         data_train[i] = char_to_ix[ch]

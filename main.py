@@ -12,8 +12,8 @@ def main():
     parser = argparse.ArgumentParser(description='Federated Learning')
     # parser.add_argument('--outf', default='./model/', help='folder to output images and model checkpoints') #输出结果保存路径
     # parser.add_argument('--net', default='./model/Resnet18.pth', help="path to net (to continue training)")  #恢复训练时的模型路径
-    parser.add_argument("-m", "--model", help="resnet18 or lstm or cnn", type=str, default='cnn')
-    parser.add_argument("-d", "--data", help="Cifar or  MINIST or FMNIST or Shakespeare", type=str, default='FMNIST')
+    parser.add_argument("-m", "--model", help="resnet18 or lstm or cnn", type=str, default='lstm')
+    parser.add_argument("-d", "--data", help="Cifar or  MINIST or FMNIST or Shakespeare", type=str, default='Shakespeare')
     parser.add_argument("-bs", "--batchsize", help="the batch size of each epoch", type=int, default=128)
     parser.add_argument("-e", "--EPOCH", help="the number of epochs", type=int, default=135)
     parser.add_argument("-nm", "--noniid_model", help="quantity_noniid or label_noniid or iid", type=str, default='quantity_noniid')
