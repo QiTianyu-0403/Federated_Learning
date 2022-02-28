@@ -16,6 +16,7 @@ def main():
     parser.add_argument("-d", "--data", help="Cifar or  MINIST or FMNIST or Shakespeare", type=str, default='Shakespeare')
     parser.add_argument("-bs", "--batchsize", help="the batch size of each epoch", type=int, default=128)
     parser.add_argument("-e", "--EPOCH", help="the number of epochs", type=int, default=135)
+    parser.add_argument("-lr", "--learning_rate", help="learning rate", type=float, default=0.01)
     parser.add_argument("-nm", "--noniid_model", help="quantity_noniid or label_noniid or iid", type=str, default='quantity_noniid')
     parser.add_argument("-iu", "--idx_user", help="Select the client number(<=num_users)", type=int, default=0)
     parser.add_argument("-nu", "--num_users", help="The number of clients", type=int, default=3)

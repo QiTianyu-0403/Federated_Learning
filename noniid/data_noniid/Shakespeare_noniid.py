@@ -26,8 +26,6 @@ def get_sort_data(args):
     part = ""
     name_flag = 1
 
-    print(len(data))
-
     for i in range(len(data)):
         if data[i - 1] == ':' and data[i] == '\n':
             if name_flag == 1:
@@ -55,6 +53,14 @@ def get_sort_data(args):
     df_sort['User'] = user_list
     return df_sort
 
+def get_iid_data(args):
+    data_path = '../data/Shakespeare/Shakespeare.txt'
+    data = open(data_path, 'r').read()
+    data = list(data)
+
+    print(len(data))
+
+
 def assign_list(lenth, n):
     assignment = []
     cout_list = split_integer(lenth,n)
@@ -66,17 +72,20 @@ def assign_list(lenth, n):
 def divide_in_txt(args):
     shutil.rmtree('./temp/Shakespeare/')
     os.mkdir('./temp/Shakespeare/')
-    dataframe_sort = get_sort_data(args)
-    print(dataframe_sort)
+    if args.noniid_model == 'noniid':
+        dataframe_sort = get_sort_data(args)
 
-    for i in range(args.num_users):
-        df = dataframe_sort[dataframe_sort['User']==i]
-        df = df.sort_values(by=['idx'])
+        for i in range(args.num_users):
+            df = dataframe_sort[dataframe_sort['User']==i]
+            df = df.sort_values(by=['idx'])
 
-        data_path = './temp/Shakespeare/' + str(i) + '.txt'
+            data_path = './temp/Shakespeare/' + str(i) + '.txt'
 
-        with open(data_path, "w") as f:
-            for j in range(df.shape[0]):
-                f.write(df.iloc[j][1])
-            f.close()
+            with open(data_path, "w") as f:
+                for j in range(df.shape[0]):
+                    f.write(df.iloc[j][1])
+                f.close()
+
+    if args.noniid_model == 'iid':
+        get_iid_data(args)
 

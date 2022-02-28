@@ -76,6 +76,6 @@ def init(args):
 
     # Define loss functions and optimization
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.SGD(net.parameters(), lr=0.1, momentum=0.9, weight_decay=5e-4)
+    optimizer = optim.SGD(net.parameters(), lr=args.learning_rate, momentum=0.9, weight_decay=5e-4)
     return device, trainloader, testloader, net, criterion, optimizer
 

@@ -55,6 +55,6 @@ def init(args):
     rnn = RNN(vocab_size, vocab_size, hidden_size, num_layers).to(device)
 
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(rnn.parameters(), lr=0.002)
+    optimizer = optim.Adam(rnn.parameters(), lr=args.learning_rate)
 
     return device, rnn, data_train, data_test, criterion, optimizer
