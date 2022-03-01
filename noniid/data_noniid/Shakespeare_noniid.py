@@ -4,6 +4,24 @@ import shutil
 import os
 pd.set_option('display.max_columns', None)
 
+def sum_idx_list(list):
+    sum_list = [0]
+    for i in range(len(list)):
+        sum = 0
+        for j in range(i+1):
+            sum += list[j]
+        sum_list.append(sum)
+    return sum_list
+
+
+def assign_list(lenth, n):
+    assignment = []
+    cout_list = split_integer(lenth,n)
+    for i in range(len(cout_list)):
+        for j in range(cout_list[i]):
+            assignment.append(i)
+    return assignment
+
 def get_sort_data(args):
     # data_path = '../shakespeare.txt'
     data_path = '../data/Shakespeare/Shakespeare.txt'
@@ -57,21 +75,15 @@ def get_iid_data(args):
     data_path = '../data/Shakespeare/Shakespeare.txt'
     data = open(data_path, 'r').read()
     data = list(data)
-
+    lenth_list = split_integer(len(data), args.num_users)
     print(len(data))
+    return data, lenth_list
 
-
-def assign_list(lenth, n):
-    assignment = []
-    cout_list = split_integer(lenth,n)
-    for i in range(len(cout_list)):
-        for j in range(cout_list[i]):
-            assignment.append(i)
-    return assignment
 
 def divide_in_txt(args):
     shutil.rmtree('./temp/Shakespeare/')
     os.mkdir('./temp/Shakespeare/')
+
     if args.noniid_model == 'noniid':
         dataframe_sort = get_sort_data(args)
 
@@ -87,5 +99,14 @@ def divide_in_txt(args):
                 f.close()
 
     if args.noniid_model == 'iid':
-        get_iid_data(args)
+        data, lenth_list = get_iid_data(args)
+        sum_list = sum_idx_list(lenth_list)
+
+        for i in range(args.num_users):
+            data_path = './temp/Shakespeare/' + str(i) + '.txt'
+            with open(data_path, "w") as f:
+                for item in data[sum_list[i]:sum_list[i+1]-1]:
+                    f.write(item)
+                f.close()
+
 
