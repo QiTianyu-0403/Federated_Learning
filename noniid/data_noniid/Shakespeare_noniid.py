@@ -29,13 +29,13 @@ def get_sort_data(args):
     data = list(data)
 
     delete_list = []
-    # for i in range(1, len(data)-1):
-    #     if data[i] == '\n' and data[i-1] == '\n' and data[i+1] == '\n':
-    #         delete_list.append(i)
-    # x = 0
-    # for y in delete_list:
-    #     data.pop(y-x)
-    #     x+=1
+    for i in range(1, len(data)-1):
+        if data[i] == '\n' and data[i-1] == '\n' and data[i+1] == '\n':
+            delete_list.append(i)
+    x = 0
+    for y in delete_list:
+        data.pop(y-x)
+        x+=1
 
     name_list = []
     idx_list = [0]
