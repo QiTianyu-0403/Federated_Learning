@@ -2,6 +2,7 @@ import argparse
 from train.train_resnet18 import train_resnet18
 from train.train_cnn import train_cnn
 from train.train_lstm import train_lstm
+from train.train_mobilenet import train_mobilenet
 
 def main():
     """
@@ -12,8 +13,8 @@ def main():
     parser = argparse.ArgumentParser(description='Federated Learning')
     # parser.add_argument('--outf', default='./model/', help='folder to output images and model checkpoints') #输出结果保存路径
     # parser.add_argument('--net', default='./model/Resnet18.pth', help="path to net (to continue training)")  #恢复训练时的模型路径
-    parser.add_argument("-m", "--model", help="resnet18 or lstm or cnn", type=str, default='lstm')
-    parser.add_argument("-d", "--data", help="Cifar or  MINIST or FMNIST or Shakespeare", type=str, default='Shakespeare')
+    parser.add_argument("-m", "--model", help="resnet18 or lstm or cnn", type=str, default='cnn')
+    parser.add_argument("-d", "--data", help="Cifar or  MINIST or FMNIST or Shakespeare", type=str, default='MNIST')
     parser.add_argument("-bs", "--batchsize", help="the batch size of each epoch", type=int, default=128)
     parser.add_argument("-e", "--EPOCH", help="the number of epochs", type=int, default=135)
     parser.add_argument("-lr", "--learning_rate", help="learning rate", type=float, default=0.01)
@@ -31,6 +32,8 @@ def main():
         train_cnn(args)
     if args.model == 'lstm':
         train_lstm(args)
+    if args.model == 'mobilenet':
+        train_mobilenet(args)
 
 
 if __name__ == "__main__":
