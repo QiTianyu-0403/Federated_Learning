@@ -7,9 +7,9 @@ from file_flow import user_noniid_in_file
 
 def main():
     parser = argparse.ArgumentParser(description='NonIID')
-    parser.add_argument("-d", "--data", help="Cifar or  MINIST or FMNIST", type=str, default='Shakespeare')
+    parser.add_argument("-d", "--data", help="Cifar or  MINIST or FMNIST", type=str, default='MNIST')
     parser.add_argument("-nm", "--noniid_model", help="quantity_noniid or label_noniid or iid/Shakespeare:iid or noniid",
-                        type=str, default='iid')
+                        type=str, default='label_noniid')
     parser.add_argument("-nu", "--num_users", help="The number of clients", type=int, default=3)
     parser.add_argument("-ts", "--total_samples", help="The total samples of each clients", type=int, default=500)
     parser.add_argument("-ru", "--rate_unbalance", help="The proportion of noniid (<=1.0) ", type=float, default=0.6)
