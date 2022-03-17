@@ -35,7 +35,5 @@ def main():
     if args.model == 'mobilenet':
         train_mobilenet(args)
 
-
-
 if __name__ == "__main__":
     main()
