@@ -14,7 +14,7 @@ def main():
     parser = argparse.ArgumentParser(description='Federated Learning')
     # parser.add_argument('--outf', default='./model/', help='folder to output images and model checkpoints') #输出结果保存路径
     # parser.add_argument('--net', default='./model/Resnet18.pth', help="path to net (to continue training)")  #恢复训练时的模型路径
-    parser.add_argument("-m", "--model", help="resnet18 or lstm or cnn or mobilenet", type=str, default='mobilenet')
+    parser.add_argument("-m", "--model", help="resnet18 or lstm or cnn or mobilenet", type=str, default='cnn')
     parser.add_argument("-d", "--data", help="Cifar or  MINIST or FMNIST or Shakespeare", type=str, default='MNIST')
     parser.add_argument("-bs", "--batchsize", help="the batch size of each epoch", type=int, default=128)
     parser.add_argument("-e", "--EPOCH", help="the number of epochs", type=int, default=135)
@@ -26,8 +26,8 @@ def main():
     parser.add_argument("-ru", "--rate_unbalance", help="The proportion of noniid (<=1.0) ", type=float, default=0.6)
     parser.add_argument("-nc", "--num_class", help="The classes number of noniid (<=10) ", type=int, default=2)
 
-    parser.add_argument("-p", "--port", help="the port used for rpc initialization", type=str,default="29501")
-    parser.add_argument("-a", "--addr", help="the port used for rpc initialization", type=str, default="192.168.1.108")
+    parser.add_argument("-p", "--port", help="the port used for rpc initialization", type=str,default="29500")
+    parser.add_argument("-a", "--addr", help="the port used for rpc initialization", type=str, default="192.168.1.104")
     parser.add_argument("-r", "--rank", help="rank of this process", type=int, default=0)
     parser.add_argument("-ws", "--world_size", help="number of process in group", type=int, default=3)
     args = parser.parse_args()
@@ -44,7 +44,7 @@ def main():
     # if args.model == 'mobilenet':
     #     train_mobilenet(args)
 
-    run_worker(args.rank, args.world_size)
+    run_worker(args)
 
 if __name__ == "__main__":
     main()
