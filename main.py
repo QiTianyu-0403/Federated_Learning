@@ -19,8 +19,8 @@ def main():
     parser.add_argument("-bs", "--batchsize", help="the batch size of each epoch", type=int, default=128)
     parser.add_argument("-e", "--EPOCH", help="the number of epochs", type=int, default=135)
     parser.add_argument("-lr", "--learning_rate", help="learning rate", type=float, default=0.01)
-    parser.add_argument("-nm", "--noniid_model", help="quantity_noniid or label_noniid or iid", type=str, default='quantity_noniid')
-    parser.add_argument("-iu", "--idx_user", help="Select the client number(<=num_users)", type=int, default=0)
+    parser.add_argument("-nm", "--noniid_model", help="quantity_noniid or label_noniid or iid", type=str, default='label_noniid')
+    # parser.add_argument("-iu", "--idx_user", help="Select the client number(<=num_users)", type=int, default=0)
     parser.add_argument("-nu", "--num_users", help="The number of clients", type=int, default=3)
     parser.add_argument("-ts", "--total_samples", help="The total samples of each clients", type=int, default=500)
     parser.add_argument("-ru", "--rate_unbalance", help="The proportion of noniid (<=1.0) ", type=float, default=0.6)
@@ -28,7 +28,7 @@ def main():
 
     parser.add_argument("-p", "--port", help="the port used for rpc initialization", type=str,default="29500")
     parser.add_argument("-a", "--addr", help="the port used for rpc initialization", type=str, default="192.168.1.104")
-    parser.add_argument("-r", "--rank", help="rank of this process", type=int, default=0)
+    parser.add_argument("-r", "--rank", help="rank of this process", type=int, default=1)
     parser.add_argument("-ws", "--world_size", help="number of process in group", type=int, default=3)
     args = parser.parse_args()
 

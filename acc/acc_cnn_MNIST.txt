@@ -1,4 +1,0 @@
-EPOCH=001,Accuracy= 16.100%
-EPOCH=002,Accuracy= 20.900%
-EPOCH=003,Accuracy= 24.400%
-EPOCH=004,Accuracy= 31.110%
