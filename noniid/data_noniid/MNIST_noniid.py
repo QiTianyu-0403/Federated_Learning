@@ -3,6 +3,7 @@ import numpy as np
 from init.init_resnet18 import normalize_data_mnist
 from noniid.file_flow import split_integer, test_label
 
+
 def get_dataset_mnist_noniid(args):
     transform_train_mnist = normalize_data_mnist()
 
@@ -17,11 +18,13 @@ def get_dataset_mnist_noniid(args):
         data_users_train = mnist_extr_iid(train_dataset, args)
     return data_users_train
 
+
 def sum_list(list, n):
     sum = 0
     for i in range(n):
         sum += list[i]
     return sum
+
 
 def regular_mnist(idxs_labels):
     num_label = np.array([5923, 6742, 5958, 6131, 5842, 5421, 5918, 6265, 5851, 5949])
@@ -46,6 +49,7 @@ def regular_mnist(idxs_labels):
     print(return_arr.shape)
 
     return return_arr
+
 
 def mnist_extr_label_noniid(train_dataset, args):
     dict_users_train = {i: np.array([]) for i in range(args.num_users)}
@@ -104,6 +108,7 @@ def mnist_extr_label_noniid(train_dataset, args):
     test_label(dict_users_train, train_dataset)
     return dict_users_train
 
+
 def mnist_extr_quantity_noniid(train_dataset, args):
     dict_users_train = {i: np.array([]) for i in range(args.num_users)}
     idxs = np.arange(60000)
@@ -138,6 +143,7 @@ def mnist_extr_quantity_noniid(train_dataset, args):
 
     test_label(dict_users_train, train_dataset)
     return dict_users_train
+
 
 def mnist_extr_iid(train_dataset, args):
     dict_users_train = {i: np.array([]) for i in range(args.num_users)}

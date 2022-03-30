@@ -6,8 +6,10 @@ from model.cnn import *
 from torchsummary import summary
 from noniid.file_flow import select_trainset
 
+
 def tmp_func(x):
     return x.repeat(3, 1, 1)
+
 
 def normalize_data_cifar():
     """
@@ -27,6 +29,7 @@ def normalize_data_cifar():
     ])
     return transform_train, transform_test
 
+
 def normalize_data_mnist():
     """
     Get the normalize picture (MNIST and FMNIST)
@@ -39,6 +42,7 @@ def normalize_data_mnist():
     ])
 
     return transform
+
 
 def load_data(args):
     """
@@ -60,11 +64,11 @@ def load_data(args):
         testset = torchvision.datasets.FashionMNIST(root='./data', train=False, download=False, transform=transform_mnist)
         trainset_select = select_trainset(trainset, args)
 
-    print(len(trainset_select))
     trainloader = torch.utils.data.DataLoader(trainset_select, batch_size=args.batchsize, shuffle=True, num_workers=2)
     testloader = torch.utils.data.DataLoader(testset, batch_size=100, shuffle=False, num_workers=2)
 
     return trainloader,testloader
+
 
 def init(args):
     """
@@ -79,4 +83,3 @@ def init(args):
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(net.parameters(), lr=args.learning_rate, momentum=0.9, weight_decay=5e-4)
     return device, trainloader, testloader, net, criterion, optimizer
-

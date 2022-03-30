@@ -5,6 +5,7 @@ from noniid.data_noniid.FMNIST_noniid import get_dataset_fmnist_noniid
 from noniid.data_noniid.Shakespeare_noniid import divide_in_txt
 from file_flow import user_noniid_in_file
 
+
 def main():
     parser = argparse.ArgumentParser(description='NonIID')
     parser.add_argument("-d", "--data", help="Cifar or  MINIST or FMNIST", type=str, default='MNIST')

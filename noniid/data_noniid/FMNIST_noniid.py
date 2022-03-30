@@ -3,6 +3,7 @@ import numpy as np
 from init.init_resnet18 import normalize_data_mnist
 from noniid.file_flow import split_integer, test_label
 
+
 def get_dataset_fmnist_noniid(args):
     transform_train_mnist = normalize_data_mnist()
 
@@ -16,6 +17,7 @@ def get_dataset_fmnist_noniid(args):
     if args.noniid_model == 'iid':
         data_users_train = fmnist_extr_iid(train_dataset, args)
     return data_users_train
+
 
 def fmnist_extr_label_noniid(train_dataset, args):
     dict_users_train = {i: np.array([]) for i in range(args.num_users)}
@@ -75,6 +77,7 @@ def fmnist_extr_label_noniid(train_dataset, args):
     test_label(dict_users_train, train_dataset)
     return dict_users_train
 
+
 def fmnist_extr_quantity_noniid(train_dataset, args):
     dict_users_train = {i: np.array([]) for i in range(args.num_users)}
     idxs = np.arange(60000)
@@ -110,6 +113,7 @@ def fmnist_extr_quantity_noniid(train_dataset, args):
 
     test_label(dict_users_train, train_dataset)
     return dict_users_train
+
 
 def fmnist_extr_iid(train_dataset, args):
     dict_users_train = {i: np.array([]) for i in range(args.num_users)}

@@ -6,6 +6,7 @@ from model.mobilenet import *
 from torchsummary import summary
 from noniid.file_flow import select_trainset
 
+
 def normalize_data_mnist():
     """
     Get the normalize picture (MNIST and FMNIST)
@@ -18,6 +19,7 @@ def normalize_data_mnist():
     ])
 
     return transform
+
 
 def load_data(args):
     """
@@ -38,6 +40,7 @@ def load_data(args):
     testloader = torch.utils.data.DataLoader(testset, batch_size=100, shuffle=False, num_workers=2)
 
     return trainloader,testloader
+
 
 def init(args):
     """

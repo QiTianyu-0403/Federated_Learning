@@ -1,6 +1,7 @@
 from init.init_mobilenet import init
 import torch
 
+
 def train_mobilenet(args):
     device, trainloader, testloader, net, criterion, optimizer = init(args)
 

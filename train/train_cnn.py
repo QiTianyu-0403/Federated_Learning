@@ -1,6 +1,7 @@
 from init.init_cnn import init
 import torch
 
+
 def train_cnn(args):
     device, trainloader, testloader, net, criterion, optimizer = init(args)
 

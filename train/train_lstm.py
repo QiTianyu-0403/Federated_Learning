@@ -4,6 +4,7 @@ import torch
 import torch.nn.functional as F
 from torch.distributions import Categorical
 
+
 def train_lstm(args):
     device, rnn, data_train, data_test, criterion, optimizer = init(args)
     pre_epoch = 0

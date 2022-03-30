@@ -4,6 +4,7 @@ import numpy as np
 import math
 from torch.utils.data import TensorDataset
 
+
 def split_integer(m, n):
     assert n > 0
     quotient = int(m / n)
@@ -13,6 +14,7 @@ def split_integer(m, n):
     if remainder < 0:
         return [quotient - 1] * -remainder + [quotient] * (n + remainder)
     return [quotient] * n
+
 
 def test_label(dict_user_train, train_dataset):
     for i in range(len(dict_user_train)):
@@ -25,6 +27,7 @@ def test_label(dict_user_train, train_dataset):
         print('Client : ',i, end=' ')
         print('----------')
         print(test_num)
+
 
 def user_noniid_in_file(dict_users_train, args):
     if args.noniid_model == 'label_noniid':
@@ -39,6 +42,7 @@ def user_noniid_in_file(dict_users_train, args):
     frame = pd.DataFrame.from_dict(dict_users_train, orient='index')
 
     frame.to_csv(file_name)
+
 
 def user_out_file(args):
     if args.noniid_model == 'label_noniid':
@@ -58,6 +62,7 @@ def user_out_file(args):
         train_idx.append(frame.iloc[args.rank-1, i+1])
 
     return train_idx
+
 
 def select_trainset(trainset, args):
     train_idx = user_out_file(args)

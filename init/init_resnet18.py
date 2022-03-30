@@ -7,8 +7,10 @@ from model.cnn import *
 from torchsummary import summary
 from noniid.file_flow import select_trainset
 
+
 def tmp_func(x):
     return x.repeat(3, 1, 1)
+
 
 def normalize_data_cifar():
     """
@@ -28,6 +30,7 @@ def normalize_data_cifar():
     ])
     return transform_train, transform_test
 
+
 def normalize_data_mnist():
     """
     Get the normalize picture (MNIST and FMNIST)
@@ -40,6 +43,7 @@ def normalize_data_mnist():
     ])
 
     return transform
+
 
 def load_data(args):
     """
@@ -66,6 +70,7 @@ def load_data(args):
 
     return trainloader,testloader
 
+
 def init(args):
     """
     Make the net/device/data/criterion/optimizer
@@ -79,4 +84,3 @@ def init(args):
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(net.parameters(), lr=args.learning_rate, momentum=0.9, weight_decay=5e-4)
     return device, trainloader, testloader, net, criterion, optimizer
-

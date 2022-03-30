@@ -4,6 +4,7 @@ import shutil
 import os
 pd.set_option('display.max_columns', None)
 
+
 def sum_idx_list(list):
     sum_list = [0]
     for i in range(len(list)):
@@ -21,6 +22,7 @@ def assign_list(lenth, n):
         for j in range(cout_list[i]):
             assignment.append(i)
     return assignment
+
 
 def get_sort_data(args):
     # data_path = '../shakespeare.txt'
@@ -71,6 +73,7 @@ def get_sort_data(args):
     df_sort['User'] = user_list
     return df_sort
 
+
 def get_iid_data(args):
     data_path = '../data/Shakespeare/Shakespeare.txt'
     data = open(data_path, 'r').read()
@@ -107,5 +110,3 @@ def divide_in_txt(args):
                 for item in data[sum_list[i]:sum_list[i+1]-1]:
                     f.write(item)
                 f.close()
-
-

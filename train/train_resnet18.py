@@ -1,6 +1,7 @@
 from init.init_resnet18 import init
 import torch
 
+
 def train_resnet18(args):
     device, trainloader, testloader, net, criterion, optimizer = init(args)
 

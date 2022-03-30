@@ -30,6 +30,7 @@ def main():
     parser.add_argument("-a", "--addr", help="the port used for rpc initialization", type=str, default="192.168.1.104")
     parser.add_argument("-r", "--rank", help="rank of this process", type=int, default=1)
     parser.add_argument("-ws", "--world_size", help="number of process in group", type=int, default=3)
+    parser.add_argument("-ew", "--epoch_worker", help="the num of per worker run", type=int, default=10)
     args = parser.parse_args()
 
     """

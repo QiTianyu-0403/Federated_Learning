@@ -1,6 +1,7 @@
 import torch.nn as nn
 import torch.nn.functional as F
 
+
 class ResidualBlock(nn.Module):
     def __init__(self, inchannel, outchannel, stride=1):
         super(ResidualBlock, self).__init__()
@@ -24,12 +25,13 @@ class ResidualBlock(nn.Module):
         out = F.relu(out)
         return out
 
+
 class ResNet(nn.Module):
     def __init__(self, ResidualBlock, num_classes=10):
         super(ResNet, self).__init__()
-        self.inchannel = 64              #输入的像素为64
+        self.inchannel = 64              # 输入的像素为64
         self.conv1 = nn.Sequential(
-            nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1, bias=False),  #三通道，三个颜色输入
+            nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1, bias=False),  # 三通道，三个颜色输入
             nn.BatchNorm2d(64),
             nn.ReLU(),
         )
@@ -60,5 +62,4 @@ class ResNet(nn.Module):
 
 
 def ResNet18():
-
     return ResNet(ResidualBlock)

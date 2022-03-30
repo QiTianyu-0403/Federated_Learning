@@ -2,6 +2,7 @@ from model.lstm import *
 import torch
 import torch.optim as optim
 
+
 def load_data(args):
     """
     load data from txt (or make Non-IID data)
@@ -42,6 +43,7 @@ def load_data(args):
     data_test = torch.unsqueeze(data_test, dim=1)
 
     return data_train, data_test, data_size, vocab_size, char_to_ix, ix_to_char, device
+
 
 def init(args):
     """
