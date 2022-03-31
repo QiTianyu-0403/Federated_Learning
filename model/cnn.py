@@ -27,3 +27,6 @@ class CNN(nn.Module):
         x = self.fc2(x)
         output = F.log_softmax(x, dim=1)
         return output
+
+    def set_weights(self, weights):
+        self.load_state_dict(weights)

@@ -57,9 +57,9 @@ def user_out_file(args):
     frame = pd.read_csv(file_name)
     train_idx = []
     for i in range(frame.shape[1]-1):
-        if math.isnan(frame.iloc[args.rank-1, i+1]):
+        if math.isnan(frame.iloc[args.idx_user-1, i+1]):
             break
-        train_idx.append(frame.iloc[args.rank-1, i+1])
+        train_idx.append(frame.iloc[args.idx_user-1, i+1])
 
     return train_idx
 

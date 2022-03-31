@@ -8,7 +8,7 @@ def load_data(args):
     load data from txt (or make Non-IID data)
     """
     data_path = './data/' + args.data + '/' + args.data + '.txt'
-    data_idx_path = './noniid/temp/Shakespeare/' + str(args.rank-1) + '.txt'
+    data_idx_path = './noniid/temp/Shakespeare/' + str(args.idx_user-1) + '.txt'
     data = open(data_path, 'r').read()
     data_idx = open(data_idx_path, 'r').read()
     chars = sorted(list(set(data)))
@@ -18,7 +18,7 @@ def load_data(args):
 
     print("-----------load data...-----------------")
     print("Data has {} characters, {} unique".format(data_size, vocab_size))
-    print("Client {} has {} characters, {} unique".format(args.rank-1, data_idx_size, vocab_idx_size))
+    print("Client {} has {} characters, {} unique".format(args.idx_user-1, data_idx_size, vocab_idx_size))
     print("----------------------------------------")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
