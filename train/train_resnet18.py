@@ -55,7 +55,7 @@ def train_resnet18(args):
                         _, predicted = torch.max(outputs.data, 1)
                         total += labels.size(0)
                         correct += (predicted == labels).sum()
-                    print('测试分类准确率为：%.3f%%' % (100 * correct / total))
+                    print('测试分类准确率为：%.3f%%' % (100. * correct / total))
                     acc = 100. * correct / total
                     # 将每次测试结果实时写入acc.txt文件中
                     # print('Saving model......')

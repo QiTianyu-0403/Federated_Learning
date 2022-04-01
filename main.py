@@ -38,8 +38,8 @@ def main():
     """
     # if args.model == 'resnet18':
     #     train_resnet18(args)
-    # if args.model == 'cnn':
-    #     train_cnn(args)
+    if args.model == 'cnn':
+        train_cnn(args)
     # if args.model == 'lstm':
     #     train_lstm(args)
     # if args.model == 'mobilenet':

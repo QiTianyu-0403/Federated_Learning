@@ -17,8 +17,8 @@ class Server(object):
         futs, update_paras = [], []
         para = self.model.state_dict()
         for worker_rref in self.worker_rrefs:
-            futs.append(rpc.rpc_async(worker_rref.owner(), _call_method, args=(Worker.run_episode, worker_rref,
-                             para, args), timeout=0))
+            futs.append(rpc.rpc_async(worker_rref.owner(), _call_method, args=(Worker.run_episode, \
+            worker_rref, para, args), timeout=0))
         for fut in futs:
             update_paras.append(fut.wait())
         self.model_average(*update_paras)
