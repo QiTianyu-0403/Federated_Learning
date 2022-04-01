@@ -2,11 +2,12 @@
 
 USER=pi
 PASSWORD=raspberry
+SEVER=qty-tp
 
-nameworker=(raspi8 raspi9 raspi10)
-IP_raspi8=192.168.1.104
-IP_raspi9=192.168.1.101
-IP_raspi10=192.168.1.103
+# nameworker=(raspi8 raspi9 raspi10)
+# IP_raspi8=192.168.1.104
+# IP_raspi9=192.168.1.101
+# IP_raspi10=192.168.1.103
 
 SRCDIR_root=/Users/qitianyu/Master/Semester1/Federated_learning/
 dir1=FL_models
@@ -17,6 +18,7 @@ dir5=init
 file1=main.py
 
 DESDIR=/home/pi/qitianyu/Federated_learning/
+SERVER_DESDIR=/home/qty-tp/Semester2/Federated_learning/
 FILENAME=./bash/ip.txt
 
 for_in_file(){
@@ -32,6 +34,15 @@ for_in_file(){
       echo "Deploy for $ip is done"
       sleep 1
    done
+
+   scp -v -r ${dir1} ${SEVER}@192.168.1.110:${SERVER_DESDIR}
+   scp -v -r ${dir2} ${SEVER}@192.168.1.110:${SERVER_DESDIR}
+   scp -v -r ${dir3} ${SEVER}@192.168.1.110:${SERVER_DESDIR}
+   scp -v -r ${dir4} ${SEVER}@192.168.1.110:${SERVER_DESDIR}
+   scp -v -r ${dir5} ${SEVER}@192.168.1.110:${SERVER_DESDIR}
+   scp ${file1} ${SEVER}@192.168.1.110:${SERVER_DESDIR}
+   echo "Deploy for Server is done"
+   sleep 1
 }
 
 cd ${SRCDIR_root}&&
