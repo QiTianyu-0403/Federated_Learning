@@ -112,10 +112,10 @@ def _call_method(method, rref, *args, **kwargs):
 def run_worker(args):
     os.environ['MASTER_ADDR'] = args.addr
     os.environ['MASTER_PORT'] = args.port
-    os.environ["GLOO_SOCKET_IFNAME"] = 'wlan0'
     print("waiting for connecting......")
 
     if args.rank == 0:
+        os.environ["GLOO_SOCKET_IFNAME"] = "wlp4s0"
         rpc.init_rpc(name='server', rank=args.rank, world_size=args.world_size)
         print("{} has been initialized successfully".format(rpc.get_worker_info().name))
         server = Server(args)
@@ -129,6 +129,7 @@ def run_worker(args):
             server.run_episode(i, args)
 
     else:
+        os.environ["GLOO_SOCKET_IFNAME"] = "wlan0"
         rpc.init_rpc(name='worker{}'.format(args.rank), rank=args.rank, world_size=args.world_size)
         print("{} has been initialized successfully".format(rpc.get_worker_info().name))
 
