@@ -124,6 +124,9 @@ class MobileNetV2(nn.Module):
                 n = m.weight.size(1)
                 m.weight.data.normal_(0, 0.01)
                 m.bias.data.zero_()
+    
+    def set_weights(self, weights):
+        self.load_state_dict(weights)
 
 
 def mobilenetv2(**kwargs):

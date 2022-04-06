@@ -1,6 +1,7 @@
 import os
 import torch.distributed.rpc as rpc
 import torch
+import numpy as np
 import init.init_cnn as cnn_module
 import init.init_mobilenet as mobilenet_module
 import init.init_resnet18 as resnet18_module
@@ -17,6 +18,7 @@ class Server(object):
         print("{} has received the {} data successfully!".format(rpc.get_worker_info().name, len(self.test_loader)))
 
     def run_episode(self, epoch_s, args):
+        print('Round: {}'.format(epoch_s))
         futs, update_paras = [], []
         para = self.model.state_dict()
         for worker_rref in self.worker_rrefs:
@@ -68,6 +70,7 @@ class Worker(object):
 
     def run_episode(self, para, args):
         # for model: CNN / MobileNet / ResNet
+        print('-----------------Worker {} is running!-----------------'.format(self.idx))
         if args.model != "lstm":
             self.model.load_state_dict(para)
             self.model.zero_grad()
@@ -101,6 +104,32 @@ class Worker(object):
             return local_para
         
         if args.model == "lstm":
+            self.model.load_state_dict(para)
+            self.model.zero_grad()
+            pre_epoch = 0
+            iter = 0
+            for epoch in range(pre_epoch, args.epoch_worker):
+                print('\nEpoch: %d' % (epoch + 1))
+                
+                data_ptr = np.random.randint(100)
+                n = 0
+                sum_loss = 0
+                correct = 0.0
+                total = 0.0
+                hidden_state = None
+                
+                while True:
+                    input_seq = self.train_loader[data_ptr: data_ptr + args.batchsize]
+                    target_seq = self.train_loader[data_ptr + 1: data_ptr + args.batchsize + 1]
+                    input_seq, target_seq = input_seq.to(self.device), target_seq.to(self.device)
+                    self.optimizer.zero_grad()
+                    
+                    # forward + backward
+                    output, hidden_state = self.model(input_seq, hidden_state)
+                    loss = self.criterion(torch.squeeze(output), torch.squeeze(target_seq))
+                    loss.backward()
+                    self.optimizer.step()
+            
             print("hello")
 
 
@@ -125,13 +154,11 @@ def run_worker(args):
     os.environ['MASTER_ADDR'] = args.addr
     os.environ['MASTER_PORT'] = args.port
     print("waiting for connecting......")
-    options = rpc.TensorPipeRpcBackendOptions(num_worker_threads=8, rpc_timeout=10, init_method='tcp://'+args.addr+':'+args.port)
+    # options = rpc.TensorPipeRpcBackendOptions(num_worker_threads=8, rpc_timeout=10)
 
     if args.rank == 0:
-        os.environ["GLOO_SOCKET_IFNAME"] = "en7"
-        os.environ["TP_SOCKET_IFNAME"] = "en7"
-        os.environ["HOROVOD_GLOO_IFACE"] = "en7"
-        rpc.init_rpc(name='server', rank=args.rank, world_size=args.world_size, backend=rpc.BackendType.TENSORPIPE , rpc_backend_options=options)
+        os.environ["GLOO_SOCKET_IFNAME"] = "wlan0"
+        rpc.init_rpc(name='server', rank=args.rank, world_size=args.world_size)
         print("{} has been initialized successfully".format(rpc.get_worker_info().name))
         server = Server(args)
         for work_rank in range(1, args.world_size):
@@ -145,8 +172,7 @@ def run_worker(args):
 
     else:
         os.environ["GLOO_SOCKET_IFNAME"] = "wlan0"
-        os.environ["TP_SOCKET_IFNAME"] = "wlan0"
-        rpc.init_rpc(name='worker{}'.format(args.rank), rank=args.rank, world_size=args.world_size,  backend=rpc.BackendType.TENSORPIPE, rpc_backend_options=options)
+        rpc.init_rpc(name='worker{}'.format(args.rank), rank=args.rank, world_size=args.world_size)
         print("{} has been initialized successfully".format(rpc.get_worker_info().name))
 
     rpc.shutdown()

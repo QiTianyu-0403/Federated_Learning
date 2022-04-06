@@ -36,7 +36,7 @@ def load_data(args):
         testset = torchvision.datasets.FashionMNIST(root='./data', train=False, download=False, transform=transform_mnist)
         trainset_select = select_trainset(trainset, args)
 
-    trainloader = torch.utils.data.DataLoader(trainset, batch_size=args.batchsize, shuffle=True, num_workers=2)
+    trainloader = torch.utils.data.DataLoader(trainset_select, batch_size=args.batchsize, shuffle=True, num_workers=2)
     testloader = torch.utils.data.DataLoader(testset, batch_size=100, shuffle=False, num_workers=2)
 
     return trainloader,testloader

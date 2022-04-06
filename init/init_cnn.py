@@ -77,7 +77,10 @@ def init(args):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     trainloader, testloader = load_data(args)
 
-    net = CNN().to(device)
+    if args.data != 'Cifar':
+        net = CNN().to(device)
+    if args.data == 'Cifar':
+        net = CNN4Cifar().to(device)
 
     # Define loss functions and optimization
     criterion = nn.CrossEntropyLoss()

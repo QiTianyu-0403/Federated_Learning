@@ -7,8 +7,8 @@ from noniid.file_flow import split_integer, test_label
 def get_dataset_fmnist_noniid(args):
     transform_train_mnist = normalize_data_mnist()
 
-    train_dataset = torchvision.datasets.FashionMNIST('../data', train=True, download=False,
-                                   transform=transform_train_mnist)
+    train_dataset = torchvision.datasets.FashionMNIST('../data', train=True, download=False,\
+                                transform=transform_train_mnist)
 
     if args.noniid_model == 'label_noniid':
         data_users_train = fmnist_extr_label_noniid(train_dataset, args)

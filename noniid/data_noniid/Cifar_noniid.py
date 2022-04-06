@@ -1,5 +1,6 @@
 import torchvision
 import numpy as np
+# from init.init_resnet18 import normalize_data_cifar
 from init.init_resnet18 import normalize_data_cifar
 from noniid.file_flow import split_integer, test_label
 
@@ -7,8 +8,8 @@ from noniid.file_flow import split_integer, test_label
 def get_dataset_cifar10_noniid(args):
     transform_train_cifar, transform_test_cifar = normalize_data_cifar()
 
-    train_dataset = torchvision.datasets.CIFAR10('../data', train=True, download=False,
-                                   transform=transform_train_cifar)
+    train_dataset = torchvision.datasets.CIFAR10('../data', train=True, download=False,\
+                                transform=transform_train_cifar)
 
     if args.noniid_model == 'label_noniid':
         data_users_train = cifar_extr_label_noniid(train_dataset, args)

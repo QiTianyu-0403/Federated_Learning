@@ -1,3 +1,4 @@
+from turtle import forward
 import torch.nn as nn
 import torch.nn.functional as F
 import torch
@@ -28,5 +29,29 @@ class CNN(nn.Module):
         output = F.log_softmax(x, dim=1)
         return output
 
+    def set_weights(self, weights):
+        self.load_state_dict(weights)
+        
+        
+class CNN4Cifar(nn.Module):
+    def __init__(self):
+        super(CNN4Cifar, self).__init__()
+        self.conv1 = nn.Conv2d(3, 6, 5, 1)
+        self.conv2 = nn.Conv2d(6, 16, 5, 1)
+        self.pool = torch.nn.MaxPool2d(kernel_size = 2, stride = 2)
+        self.fc1 = torch.nn.Linear(16*5*5, 120)
+        self.fc2 = torch.nn.Linear(120, 84)
+        self.fc3 = torch.nn.Linear(84, 10)
+        
+    def forward(self, x):
+        x=self.pool(F.relu(self.conv1(x)))
+        x=self.pool(F.relu(self.conv2(x)))
+        x=x.view(-1,16*5*5) 
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = self.fc3(x)
+        output = F.log_softmax(x, dim=1)
+        return output
+    
     def set_weights(self, weights):
         self.load_state_dict(weights)
