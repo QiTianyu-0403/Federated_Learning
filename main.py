@@ -27,7 +27,7 @@ def main():
     parser.add_argument("-nc", "--num_class", help="The classes number of noniid (<=10) ", type=int, default=2)
 
     parser.add_argument("-p", "--port", help="the port used for rpc initialization", type=str,default="29500")
-    parser.add_argument("-a", "--addr", help="the port used for rpc initialization", type=str, default="192.168.1.110")
+    parser.add_argument("-a", "--addr", help="the port used for rpc initialization", type=str, default="192.168.1.108")
     parser.add_argument("-r", "--rank", help="rank of this process", type=int, default=0)
     parser.add_argument("-ws", "--world_size", help="number of process in group", type=int, default=2)
     parser.add_argument("-ew", "--epoch_worker", help="the num of per worker run", type=int, default=2)

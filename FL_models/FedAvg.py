@@ -2,6 +2,9 @@ import os
 import torch.distributed.rpc as rpc
 import torch
 import init.init_cnn as cnn_module
+import init.init_mobilenet as mobilenet_module
+import init.init_resnet18 as resnet18_module
+import init.init_lstm as lstm_module
 from collections import OrderedDict
 
 
@@ -96,12 +99,21 @@ class Worker(object):
                           % (epoch + 1, (i + 1 + epoch * length), sum_loss / (i + 1), 100. * correct / total, self.idx))
             local_para = self.model.state_dict()
             return local_para
+        
+        if args.model == "lstm":
+            print("hello")
 
 
 # get init informations according to args
 def init_fuc(args):
     if args.model == "cnn":
         device, trainloader, testloader, net, criterion, optimizer = cnn_module.init(args)
+    if args.model == "mobilenet":
+        device, trainloader, testloader, net, criterion, optimizer = mobilenet_module.init(args)
+    if args.model == "resnet18":
+        device, trainloader, testloader, net, criterion, optimizer = resnet18_module.init(args)
+    if args.model == "lstm":
+        device, net, trainloader, testloader, criterion, optimizer = lstm_module.init(args)
     return device, trainloader, testloader, net, criterion, optimizer
 
 
@@ -113,10 +125,13 @@ def run_worker(args):
     os.environ['MASTER_ADDR'] = args.addr
     os.environ['MASTER_PORT'] = args.port
     print("waiting for connecting......")
+    options = rpc.TensorPipeRpcBackendOptions(num_worker_threads=8, rpc_timeout=10, init_method='tcp://'+args.addr+':'+args.port)
 
     if args.rank == 0:
-        os.environ["GLOO_SOCKET_IFNAME"] = "wlp4s0"
-        rpc.init_rpc(name='server', rank=args.rank, world_size=args.world_size)
+        os.environ["GLOO_SOCKET_IFNAME"] = "en7"
+        os.environ["TP_SOCKET_IFNAME"] = "en7"
+        os.environ["HOROVOD_GLOO_IFACE"] = "en7"
+        rpc.init_rpc(name='server', rank=args.rank, world_size=args.world_size, backend=rpc.BackendType.TENSORPIPE , rpc_backend_options=options)
         print("{} has been initialized successfully".format(rpc.get_worker_info().name))
         server = Server(args)
         for work_rank in range(1, args.world_size):
@@ -130,7 +145,8 @@ def run_worker(args):
 
     else:
         os.environ["GLOO_SOCKET_IFNAME"] = "wlan0"
-        rpc.init_rpc(name='worker{}'.format(args.rank), rank=args.rank, world_size=args.world_size)
+        os.environ["TP_SOCKET_IFNAME"] = "wlan0"
+        rpc.init_rpc(name='worker{}'.format(args.rank), rank=args.rank, world_size=args.world_size,  backend=rpc.BackendType.TENSORPIPE, rpc_backend_options=options)
         print("{} has been initialized successfully".format(rpc.get_worker_info().name))
 
     rpc.shutdown()

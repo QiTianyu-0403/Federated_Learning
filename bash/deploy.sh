@@ -50,7 +50,7 @@ for_in_file(){
    sleep 1
 
    # For qty-desk:
-   scp -v -r bash qty@192.168.1.106:/home/qty/Semester2
+   scp -v -r bash qty@192.168.1.109:/home/qty/Semester2
    echo "Deploy for bash is done"
    sleep 1
 }
