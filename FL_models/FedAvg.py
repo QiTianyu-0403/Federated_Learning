@@ -69,7 +69,7 @@ class Worker(object):
         self.idx = args.idx_user + 1
 
     def run_episode(self, para, args):
-        # for model: CNN / MobileNet / ResNet
+        # for model: CNN / MobileNet / ResNet-18 / LSTM
         print('-----------------Worker {} is running!-----------------'.format(self.idx))
         if args.model != "lstm":
             self.model.load_state_dict(para)
@@ -129,6 +129,21 @@ class Worker(object):
                     loss = self.criterion(torch.squeeze(output), torch.squeeze(target_seq))
                     loss.backward()
                     self.optimizer.step()
+                    
+                    # loss + acc
+                    sum_loss += loss.item()
+                    _, predicted = torch.max(torch.squeeze(output).data, 1)
+                    total += torch.squeeze(target_seq).size(0)
+                    correct += predicted.eq(torch.squeeze(target_seq).data).cpu().sum()
+                    print('[epoch:%d, iter:%d] Loss: %.03f | Acc: %.3f%% '
+                          % (epoch + 1, iter + 1, sum_loss / (n + 1), 100. * correct / total))
+                    
+                    data_ptr += args.batchsize
+                    n += 1
+                    iter += 1
+
+                    if data_ptr + args.batchsize + 1 > self.train_loader.size(0):
+                        break
             
             print("hello")
 
