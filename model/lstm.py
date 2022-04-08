@@ -13,3 +13,6 @@ class RNN(nn.Module):
         output, hidden_state = self.rnn(embedding, hidden_state)
         output = self.decoder(output)
         return output, (hidden_state[0].detach(), hidden_state[1].detach())
+    
+    def set_weights(self, weights):
+        self.load_state_dict(weights)

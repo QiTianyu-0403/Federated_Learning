@@ -74,7 +74,7 @@ def fmnist_extr_label_noniid(train_dataset, args):
     for i in range(len(dict_users_train)):
         dict_users_train[i] = dict_users_train[i].astype(int)
 
-    test_label(dict_users_train, train_dataset)
+    test_label(dict_users_train, train_dataset, args)
     return dict_users_train
 
 
@@ -111,7 +111,7 @@ def fmnist_extr_quantity_noniid(train_dataset, args):
     for i in range(len(dict_users_train)):
         dict_users_train[i] = dict_users_train[i].astype(int)
 
-    test_label(dict_users_train, train_dataset)
+    test_label(dict_users_train, train_dataset, args)
     return dict_users_train
 
 
@@ -139,5 +139,5 @@ def fmnist_extr_iid(train_dataset, args):
     for i in range(len(dict_users_train)):
         dict_users_train[i] = dict_users_train[i].astype(int)
 
-    test_label(dict_users_train, train_dataset)
+    test_label(dict_users_train, train_dataset, args)
     return dict_users_train

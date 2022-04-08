@@ -16,17 +16,26 @@ def split_integer(m, n):
     return [quotient] * n
 
 
-def test_label(dict_user_train, train_dataset):
+def test_label(dict_user_train, train_dataset, args):
+    sum_data = []
     for i in range(len(dict_user_train)):
         test_num = np.zeros((10,), dtype=np.int)
         for j in range(len(dict_user_train[i])):
             idxs = dict_user_train[i][j]
             label = train_dataset[idxs][1]
             test_num[label] += 1
+        sum_data.append(sum(test_num))
         print('----------', end=' ')
-        print('Client : ',i, end=' ')
+        print('Client :', i, ', Sum data is', sum(test_num), end=' ')
         print('----------')
         print(test_num)
+
+    # write list to file
+    data_path = './temp/' + args.data + '/' + args.data + '_' + args.noniid_model + '_users' + str(args.num_users) + '.txt'
+    f = open(data_path, 'w')
+    for i in sum_data:
+        f.write(str(i) + '\n')
+    f.close()
 
 
 def user_noniid_in_file(dict_users_train, args):
@@ -73,6 +82,6 @@ def select_trainset(trainset, args):
         train_label_list.append(trainset[i][1])
     train_select_tens = torch.stack(train_select_list)
     train_label_tens = torch.tensor(train_label_list)
-    trainset_select = TensorDataset(train_select_tens,train_label_tens)
+    trainset_select = TensorDataset(train_select_tens, train_label_tens)
 
     return trainset_select

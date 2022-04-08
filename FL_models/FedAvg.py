@@ -1,6 +1,8 @@
 import os
 import torch.distributed.rpc as rpc
 import torch
+import torch.nn.functional as F
+from torch.distributions import Categorical
 import numpy as np
 import init.init_cnn as cnn_module
 import init.init_mobilenet as mobilenet_module
@@ -15,7 +17,7 @@ class Server(object):
         self.server_rref = rpc.RRef(self)
         self.worker_rrefs = []
         self.world_size = args.world_size
-        print("{} has received the {} data successfully!".format(rpc.get_worker_info().name, len(self.test_loader)))
+        # print("{} has received the {} data successfully!".format(rpc.get_worker_info().name, len(self.test_loader)))
 
     def run_episode(self, epoch_s, args):
         print('Round: {}'.format(epoch_s))
@@ -45,22 +47,56 @@ class Server(object):
             print("Waiting Test!")
             self.model.eval()
             with torch.no_grad():
-                correct = 0
-                total = 0
-                for data in self.test_loader:
-                    self.model.eval()
-                    images, labels = data
-                    images, labels = images.to(self.device), labels.to(self.device)
-                    outputs = self.model(images)
-                    # 取得分最高的那个类 (outputs.data的索引号)
-                    _, predicted = torch.max(outputs.data, 1)
-                    total += labels.size(0)
-                    correct += (predicted == labels).sum()
-                print('The Global Test Accuracy is: %.3f%%' % (100. * correct / total))
-                acc = 100. * correct / total
-                f.write("EPOCH=%03d,Accuracy= %.3f%%" % (epoch_s + 1, acc))
-                f.write('\n')
-                f.flush()
+                # for model: CNN / MobileNet / ResNet18
+                if args.model != 'lstm': 
+                    correct = 0
+                    total = 0
+                    for data in self.test_loader:
+                        self.model.eval()
+                        images, labels = data
+                        images, labels = images.to(self.device), labels.to(self.device)
+                        outputs = self.model(images)
+                        # 取得分最高的那个类 (outputs.data的索引号)
+                        _, predicted = torch.max(outputs.data, 1)
+                        total += labels.size(0)
+                        correct += (predicted == labels).sum()
+                    print('The Global Test Accuracy is: %.3f%%' % (100. * correct / total))
+                    acc = 100. * correct / total
+                    f.write("EPOCH=%03d,Accuracy= %.3f%%" % (epoch_s + 1, acc))
+                    f.write('\n')
+                    f.flush()
+                
+                # for model: LSTM
+                if args.model == 'lstm':
+                    data_ptr = 0
+                    hidden_state = None
+                    sum_correct = 0
+                    sum_test = 0
+
+                    # random character from data to begin
+                    rand_index = np.random.randint(100)
+
+                    while True:
+                        input_seq = self.test_loader[rand_index + data_ptr: rand_index + data_ptr + 1]
+                        target_seq = self.test_loader[rand_index + data_ptr + 1: rand_index + data_ptr + 2]
+                        output, hidden_state = self.model(input_seq, hidden_state)
+
+                        output = F.softmax(torch.squeeze(output), dim=0)
+                        dist = Categorical(output)
+                        index = dist.sample()
+
+                        if index.item() == target_seq[0][0]:
+                            sum_correct += 1
+                        sum_test += 1
+                        data_ptr += 1
+
+                        if data_ptr > self.test_loader.size(0) - rand_index - 2:
+                            break
+                    print('The Global Test Accuracy is: %.3f%%' % (100. * sum_correct / sum_test))
+                    acc = 100. * sum_correct / sum_test
+                    f.write("EPOCH=%03d,Accuracy= %.3f%%" % (epoch_s + 1, acc))
+                    f.write('\n')
+                    f.flush()
 
 
 class Worker(object):
@@ -144,8 +180,9 @@ class Worker(object):
 
                     if data_ptr + args.batchsize + 1 > self.train_loader.size(0):
                         break
-            
-            print("hello")
+
+            local_para = self.model.state_dict()
+            return local_para
 
 
 # get init informations according to args
@@ -161,11 +198,23 @@ def init_fuc(args):
     return device, trainloader, testloader, net, criterion, optimizer
 
 
+def get_data_weight(args):
+    # get data from /noniid/temp/
+    weight_path = './noniid/temp/' + args.data + '/' + args.data + '_' + args.noniid_model + '_users' + str(args.num_users) + '.txt'
+    f = open(weight_path, 'r')
+    file = f.readlines()
+    weight_list = []
+    for i in file:
+        weight_list.append(int(i))
+    return weight_list
+
+
 def _call_method(method, rref, *args, **kwargs):
     return method(rref.local_value(), *args, **kwargs)
 
 
 def run_worker(args):
+    get_data_weight(args)
     os.environ['MASTER_ADDR'] = args.addr
     os.environ['MASTER_PORT'] = args.port
     print("waiting for connecting......")
