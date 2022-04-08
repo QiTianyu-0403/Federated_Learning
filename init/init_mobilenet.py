@@ -39,7 +39,7 @@ def load_data(args):
     trainloader = torch.utils.data.DataLoader(trainset_select, batch_size=args.batchsize, shuffle=True, num_workers=2)
     testloader = torch.utils.data.DataLoader(testset, batch_size=100, shuffle=False, num_workers=2)
 
-    return trainloader,testloader
+    return trainloader, testloader, len(trainset_select), len(testset)
 
 
 def init(args):
@@ -47,11 +47,11 @@ def init(args):
     Make the net/device/data/criterion/optimizer
     """
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    trainloader, testloader = load_data(args)
+    trainloader, testloader, train_data_num, test_data_num = load_data(args)
 
     net = mobilenetv2().to(device)
 
     # Define loss functions and optimization
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(net.parameters(), lr=args.learning_rate, momentum=0.9, weight_decay=5e-4)
-    return device, trainloader, testloader, net, criterion, optimizer
+    return device, trainloader, testloader, net, criterion, optimizer, train_data_num, test_data_num

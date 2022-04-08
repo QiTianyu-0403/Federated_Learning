@@ -3,7 +3,7 @@ import torch
 
 
 def train_mobilenet(args):
-    device, trainloader, testloader, net, criterion, optimizer = init(args)
+    device, trainloader, testloader, net, criterion, optimizer, _, _ = init(args)
 
     best_acc = 85  # 2 初始化best test accuracy
     pre_epoch = 0

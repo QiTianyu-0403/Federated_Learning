@@ -31,7 +31,7 @@ def test_label(dict_user_train, train_dataset, args):
         print(test_num)
 
     # write list to file
-    data_path = './temp/' + args.data + '/' + args.data + '_' + args.noniid_model + '_users' + str(args.num_users) + '.txt'
+    data_path = './temp_sum/' + args.data + '/' + args.data + '_' + args.noniid_model + '_users' + str(args.num_users) + '.txt'
     f = open(data_path, 'w')
     for i in sum_data:
         f.write(str(i) + '\n')

@@ -13,14 +13,14 @@ from collections import OrderedDict
 
 class Server(object):
     def __init__(self, args):
-        self.device, _, self.test_loader, self.model, _, self.optimizer = init_fuc(args)
+        self.device, _, self.test_loader, self.model, _, self.optimizer, _, self.test_num = init_fuc(args)
         self.server_rref = rpc.RRef(self)
         self.worker_rrefs = []
         self.world_size = args.world_size
-        # print("{} has received the {} data successfully!".format(rpc.get_worker_info().name, len(self.test_loader)))
+        print("{} has received the {} data successfully!".format(rpc.get_worker_info().name, self.test_num))
 
     def run_episode(self, epoch_s, args):
-        print('Round: {}'.format(epoch_s))
+        print('Round: {}'.format(epoch_s + 1))
         futs, update_paras = [], []
         para = self.model.state_dict()
         for worker_rref in self.worker_rrefs:
@@ -101,8 +101,9 @@ class Server(object):
 
 class Worker(object):
     def __init__(self, args):
-        self.device, self.train_loader, _, self.model, self.criterion, self.optimizer = init_fuc(args)
+        self.device, self.train_loader, _, self.model, self.criterion, self.optimizer, self.train_num, _ = init_fuc(args)
         self.idx = args.idx_user + 1
+        print("{} has received the {} data successfully!".format(rpc.get_worker_info().name, self.train_num))
 
     def run_episode(self, para, args):
         # for model: CNN / MobileNet / ResNet-18 / LSTM
@@ -180,7 +181,6 @@ class Worker(object):
 
                     if data_ptr + args.batchsize + 1 > self.train_loader.size(0):
                         break
-
             local_para = self.model.state_dict()
             return local_para
 
@@ -188,25 +188,14 @@ class Worker(object):
 # get init informations according to args
 def init_fuc(args):
     if args.model == "cnn":
-        device, trainloader, testloader, net, criterion, optimizer = cnn_module.init(args)
+        device, trainloader, testloader, net, criterion, optimizer, train_num, test_num = cnn_module.init(args)
     if args.model == "mobilenet":
-        device, trainloader, testloader, net, criterion, optimizer = mobilenet_module.init(args)
+        device, trainloader, testloader, net, criterion, optimizer, train_num, test_num = mobilenet_module.init(args)
     if args.model == "resnet18":
-        device, trainloader, testloader, net, criterion, optimizer = resnet18_module.init(args)
+        device, trainloader, testloader, net, criterion, optimizer, train_num, test_num = resnet18_module.init(args)
     if args.model == "lstm":
-        device, net, trainloader, testloader, criterion, optimizer = lstm_module.init(args)
-    return device, trainloader, testloader, net, criterion, optimizer
-
-
-def get_data_weight(args):
-    # get data from /noniid/temp/
-    weight_path = './noniid/temp/' + args.data + '/' + args.data + '_' + args.noniid_model + '_users' + str(args.num_users) + '.txt'
-    f = open(weight_path, 'r')
-    file = f.readlines()
-    weight_list = []
-    for i in file:
-        weight_list.append(int(i))
-    return weight_list
+        device, net, trainloader, testloader, criterion, optimizer, train_num, test_num = lstm_module.init(args)
+    return device, trainloader, testloader, net, criterion, optimizer, train_num, test_num
 
 
 def _call_method(method, rref, *args, **kwargs):
@@ -214,7 +203,6 @@ def _call_method(method, rref, *args, **kwargs):
 
 
 def run_worker(args):
-    get_data_weight(args)
     os.environ['MASTER_ADDR'] = args.addr
     os.environ['MASTER_PORT'] = args.port
     print("waiting for connecting......")
