@@ -28,7 +28,9 @@ def get_sort_data(args):
     # data_path = '../shakespeare.txt'
     data_path = '../data/Shakespeare/Shakespeare.txt'
     data = open(data_path, 'r').read()
+    data_size = len(data)
     data = list(data)
+    data = data[0: int(data_size*0.9)]
 
     delete_list = []
     for i in range(1, len(data)-1):
@@ -77,12 +79,20 @@ def get_sort_data(args):
 def get_iid_data(args):
     data_path = '../data/Shakespeare/Shakespeare.txt'
     data = open(data_path, 'r').read()
+    data_size = len(data)
     data = list(data)
+    data = data[0: int(data_size*0.9)]
     lenth_list = split_integer(len(data), args.num_users)
     return data, lenth_list
 
 
 def divide_in_txt(args):
+    '''
+    The function is used to divide the data into different users.
+    The train and test data is 9:1.
+    You can change the train and test data by changing the ratio
+    in get_iid_data and get_sort_data.
+    '''
     shutil.rmtree('./temp/Shakespeare/')
     os.mkdir('./temp/Shakespeare/')
 

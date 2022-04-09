@@ -27,10 +27,14 @@ def load_data(args):
     char_to_ix = {ch: i for i, ch in enumerate(chars)}
     ix_to_char = {i: ch for i, ch in enumerate(chars)}
 
-    data = list(data_idx)
+    data_train_select = list(data_idx)
+    data_test_select = list(data)
 
-    data_train = data[0: int(data_idx_size * 0.8)]
-    data_test = data[int(data_idx_size * 0.8): data_idx_size-1]
+    data_train = data_train_select
+    data_test = data_test_select[int(data_size * 0.9): data_size-1]
+    
+    train_num = len(data_train)
+    test_num = len(data_test)
 
     for i, ch in enumerate(data_train):
         data_train[i] = char_to_ix[ch]
@@ -42,21 +46,21 @@ def load_data(args):
     data_train = torch.unsqueeze(data_train, dim=1)
     data_test = torch.unsqueeze(data_test, dim=1)
 
-    return data_train, data_test, data_size, vocab_size, char_to_ix, ix_to_char, device
+    return data_train, data_test, data_size, vocab_size, char_to_ix, ix_to_char, device, train_num, test_num
 
 
 def init(args):
     """
-    Make the net/device/data/criterion/optimizer
+    Make the net/device/data/criterion/optimizer/train_num/test_num
     """
     hidden_size = 512  # size of hidden state
     num_layers = 3  # num of layers in LSTM layer stack
 
-    data_train, data_test, data_size, vocab_size, char_to_ix, ix_to_char, device = load_data(args)
+    data_train, data_test, data_size, vocab_size, char_to_ix, ix_to_char, device, train_num, test_num = load_data(args)
 
     rnn = RNN(vocab_size, vocab_size, hidden_size, num_layers).to(device)
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(rnn.parameters(), lr=args.learning_rate)
 
-    return device, rnn, data_train, data_test, criterion, optimizer
+    return device, rnn, data_train, data_test, criterion, optimizer, train_num, test_num
