@@ -8,7 +8,7 @@ def load_data(args):
     load data from txt (or make Non-IID data)
     """
     data_path = './data/' + args.data + '/' + args.data + '.txt'
-    data_idx_path = './noniid/temp/Shakespeare/' + str(args.idx_user-1) + '.txt'
+    data_idx_path = './noniid/temp/Shakespeare/' + str(args.idx_user) + '.txt'
     data = open(data_path, 'r').read()
     data_idx = open(data_idx_path, 'r').read()
     chars = sorted(list(set(data)))

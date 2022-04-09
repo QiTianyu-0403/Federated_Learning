@@ -1,16 +1,14 @@
 import argparse
-import sys
-sys.path.append('~/Master/Semester1/Federated_learning')
-from noniid.data_noniid.Cifar_noniid import get_dataset_cifar10_noniid
-from noniid.data_noniid.MNIST_noniid import get_dataset_mnist_noniid
-from noniid.data_noniid.FMNIST_noniid import get_dataset_fmnist_noniid
-from noniid.data_noniid.Shakespeare_noniid import divide_in_txt
+from data_noniid.Cifar_noniid import get_dataset_cifar10_noniid
+from data_noniid.MNIST_noniid import get_dataset_mnist_noniid
+from data_noniid.FMNIST_noniid import get_dataset_fmnist_noniid
+from data_noniid.Shakespeare_noniid import divide_in_txt
 from file_flow import user_noniid_in_file
 
 
 def main():
     parser = argparse.ArgumentParser(description='NonIID')
-    parser.add_argument("-d", "--data", help="Cifar or  MINIST or FMNIST", type=str, default='Cifar')
+    parser.add_argument("-d", "--data", help="Cifar or  MINIST or FMNIST", type=str, default='Shakespeare')
     parser.add_argument("-nm", "--noniid_model", help="quantity_noniid or label_noniid or iid/Shakespeare:iid or noniid",
                         type=str, default='iid')
     parser.add_argument("-nu", "--num_users", help="The number of clients", type=int, default=2)

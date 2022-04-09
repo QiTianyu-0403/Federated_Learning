@@ -110,3 +110,5 @@ def divide_in_txt(args):
                 for item in data[sum_list[i]:sum_list[i+1]-1]:
                     f.write(item)
                 f.close()
+    
+    print('Devide Shakespeare successfully!~~')

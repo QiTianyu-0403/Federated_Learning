@@ -21,23 +21,32 @@ class Server(object):
 
     def run_episode(self, epoch_s, args):
         print('Round: {}'.format(epoch_s + 1))
+        
+        # futs: run_episode ; weight_futs: get_data_num 
         futs, update_paras = [], []
+        weight_futs, data_num = [], []
+        
         para = self.model.state_dict()
         for worker_rref in self.worker_rrefs:
             futs.append(rpc.rpc_async(worker_rref.owner(), _call_method, args=(Worker.run_episode, \
             worker_rref, para, args), timeout=0))
+            weight_futs.append(rpc.rpc_async(worker_rref.owner(), _call_method, args=(Worker.get_data_num, \
+            worker_rref), timeout=0))
         for fut in futs:
             update_paras.append(fut.wait())
-        self.model_average(*update_paras)
+        for weight_fut in weight_futs:
+            data_num.append(weight_fut.wait())
+        self.model_average(*update_paras, data_num = data_num)
         self.evaluate(args, epoch_s)
 
-    def model_average(self, *local_weights):
+    def model_average(self, *local_weights, data_num):
         global_weight = OrderedDict()
-        weight = 1/len(local_weights)
+        server_data_sum = sum(data_num)
         for index, local_update in enumerate([*local_weights]):
+            weight = data_num[index]/server_data_sum
             for key in self.model.state_dict().keys():
                 if index == 0:
-                    global_weight[key] = weight*local_update[key]    # 修改系数为0.1，否则就不是平均了
+                    global_weight[key] = weight*local_update[key]    
                 else:
                     global_weight[key] += weight*local_update[key]
         self.model.set_weights(global_weight)
@@ -183,6 +192,9 @@ class Worker(object):
                         break
             local_para = self.model.state_dict()
             return local_para
+            
+    def get_data_num(self):
+        return self.train_num
 
 
 # get init informations according to args

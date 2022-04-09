@@ -1,11 +1,13 @@
 import torchvision
 import numpy as np
-from init.init_resnet18 import normalize_data_mnist
+import sys
+sys.path.append("..")
+import init.init_resnet18 as init_res
 from noniid.file_flow import split_integer, test_label
 
 
 def get_dataset_fmnist_noniid(args):
-    transform_train_mnist = normalize_data_mnist()
+    transform_train_mnist = init_res.normalize_data_mnist()
 
     train_dataset = torchvision.datasets.FashionMNIST('../data', train=True, download=False,\
                                 transform=transform_train_mnist)

@@ -30,13 +30,6 @@ def test_label(dict_user_train, train_dataset, args):
         print('----------')
         print(test_num)
 
-    # write list to file
-    data_path = './temp_sum/' + args.data + '/' + args.data + '_' + args.noniid_model + '_users' + str(args.num_users) + '.txt'
-    f = open(data_path, 'w')
-    for i in sum_data:
-        f.write(str(i) + '\n')
-    f.close()
-
 
 def user_noniid_in_file(dict_users_train, args):
     if args.noniid_model == 'label_noniid':
