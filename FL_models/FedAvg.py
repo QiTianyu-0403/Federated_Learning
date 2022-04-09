@@ -218,7 +218,6 @@ def run_worker(args):
     os.environ['MASTER_ADDR'] = args.addr
     os.environ['MASTER_PORT'] = args.port
     print("waiting for connecting......")
-    # options = rpc.TensorPipeRpcBackendOptions(num_worker_threads=8, rpc_timeout=10)
 
     if args.rank == 0:
         os.environ["GLOO_SOCKET_IFNAME"] = "wlan0"
@@ -235,7 +234,7 @@ def run_worker(args):
             server.run_episode(i, args)
 
     else:
-        os.environ["GLOO_SOCKET_IFNAME"] = "wlan0"
+        os.environ["GLOO_SOCKET_IFNAME"] = "eth0"
         rpc.init_rpc(name='worker{}'.format(args.rank), rank=args.rank, world_size=args.world_size)
         print("{} has been initialized successfully".format(rpc.get_worker_info().name))
 

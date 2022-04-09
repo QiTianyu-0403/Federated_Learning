@@ -74,7 +74,8 @@ def init(args):
     """
     Make the net/device/data/criterion/optimizer
     """
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cpu")
     trainloader, testloader, train_data_num, test_data_num = load_data(args)
 
     if args.data != 'Cifar':

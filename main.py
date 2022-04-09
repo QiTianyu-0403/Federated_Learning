@@ -3,7 +3,8 @@ from train.train_resnet18 import train_resnet18
 from train.train_cnn import train_cnn
 from train.train_lstm import train_lstm
 from train.train_mobilenet import train_mobilenet
-from FL_models.FedAvg import *
+import FL_models.FedAvg as FL
+import FL_models.HierFL as HFL
 
 def main():
     """
@@ -14,8 +15,8 @@ def main():
     parser = argparse.ArgumentParser(description='Federated Learning')
     # parser.add_argument('--outf', default='./model/', help='folder to output images and model checkpoints') #输出结果保存路径
     # parser.add_argument('--net', default='./model/Resnet18.pth', help="path to net (to continue training)")  #恢复训练时的模型路径
-    parser.add_argument("-m", "--model", help="resnet18 or lstm or cnn or mobilenet", type=str, default='lstm')
-    parser.add_argument("-d", "--data", help="Cifar or  MINIST or FMNIST or Shakespeare", type=str, default='Shakespeare')
+    parser.add_argument("-m", "--model", help="resnet18 or lstm or cnn or mobilenet", type=str, default='cnn')
+    parser.add_argument("-d", "--data", help="Cifar or  MINIST or FMNIST or Shakespeare", type=str, default='Cifar')
     parser.add_argument("-bs", "--batchsize", help="the batch size of each epoch", type=int, default=128)
     parser.add_argument("-e", "--EPOCH", help="the number of epochs", type=int, default=135)
     parser.add_argument("-lr", "--learning_rate", help="learning rate", type=float, default=0.01)
@@ -26,6 +27,7 @@ def main():
     parser.add_argument("-ru", "--rate_unbalance", help="The proportion of noniid (<=1.0) ", type=float, default=0.6)
     parser.add_argument("-nc", "--num_class", help="The classes number of noniid (<=10) ", type=int, default=2)
 
+    parser.add_argument("-fm", "--FL_model", help="the model of FL: FL/HFL", type=str,default="FL")
     parser.add_argument("-p", "--port", help="the port used for rpc initialization", type=str,default="29500")
     parser.add_argument("-a", "--addr", help="the port used for rpc initialization", type=str, default="192.168.1.103")
     parser.add_argument("-r", "--rank", help="rank of this process", type=int, default=0)
@@ -45,7 +47,17 @@ def main():
     # if args.model == 'mobilenet':
     #     train_mobilenet(args)
 
-    run_worker(args)
+    '''
+    This part is for RPC training, including the following:
+    FedAvg:
+    1 server and k workers
+    HierFedAvg:
+    1 server and n clients and k workers
+    '''
+    if args.FL_model == 'FL':
+        FL.run_worker(args)
+    elif args.FL_model == 'HFL':
+        HFL.run_worker(args)
 
 
 if __name__ == "__main__":

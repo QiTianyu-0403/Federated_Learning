@@ -19,6 +19,7 @@ dir6=bash
 file1=main.py
 
 DESDIR=/home/pi/qitianyu/Federated_learning/
+DESDIR1=/home/jason/qitianyu/Federated_learning/
 SERVER_DESDIR=/home/qty-tp/Semester2/Federated_learning/
 FILENAME=./bash/ip.txt
 
@@ -37,6 +38,26 @@ for_in_file(){
       echo "Deploy for $ip is done"
       sleep 1
    done
+
+   scp -v -r ${dir1} jason@192.168.1.112:${DESDIR1}
+   scp -v -r ${dir2} jason@192.168.1.112:${DESDIR1}
+   scp -v -r ${dir3} jason@192.168.1.112:${DESDIR1}
+   scp -v -r ${dir4} jason@192.168.1.112:${DESDIR1}
+   scp -v -r ${dir5} jason@192.168.1.112:${DESDIR1}
+   scp -v -r ${dir6} jason@192.168.1.112:${DESDIR1}
+   scp ${file1} jason@192.168.1.112:${DESDIR1}
+   echo "Deploy for 192.168.1.112 is done"
+   sleep 1
+
+   scp -v -r ${dir1} jason@192.168.1.113:${DESDIR1}
+   scp -v -r ${dir2} jason@192.168.1.113:${DESDIR1}
+   scp -v -r ${dir3} jason@192.168.1.113:${DESDIR1}
+   scp -v -r ${dir4} jason@192.168.1.113:${DESDIR1}
+   scp -v -r ${dir5} jason@192.168.1.113:${DESDIR1}
+   scp -v -r ${dir6} jason@192.168.1.113:${DESDIR1}
+   scp ${file1} jason@192.168.1.113:${DESDIR1}
+   echo "Deploy for 192.168.1.113 is done"
+   sleep 1
 
    # # For qty-TP:
    # scp -v -r ${dir1} ${SEVER}@192.168.1.110:${SERVER_DESDIR}

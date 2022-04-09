@@ -6,7 +6,7 @@ from torch.distributions import Categorical
 
 
 def train_lstm(args):
-    device, rnn, data_train, data_test, criterion, optimizer = init(args)
+    device, rnn, data_train, data_test, criterion, optimizer, _, _ = init(args)
     pre_epoch = 0
     iter = 0
 

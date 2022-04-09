@@ -21,7 +21,8 @@ def load_data(args):
     print("Client {} has {} characters, {} unique".format(args.idx_user-1, data_idx_size, vocab_idx_size))
     print("----------------------------------------")
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cpu")
 
     # char to index and index to char maps
     char_to_ix = {ch: i for i, ch in enumerate(chars)}
