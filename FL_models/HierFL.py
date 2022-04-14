@@ -9,7 +9,6 @@ import init.init_mobilenet as mobilenet_module
 import init.init_resnet18 as resnet18_module
 import init.init_lstm as lstm_module
 from collections import OrderedDict
-import socket
 
 
 class Server(object):
@@ -19,15 +18,6 @@ class Server(object):
         self.edge_rrefs = []
         self.world_size = args.world_size
         print("{} has received the {} data successfully!".format(rpc.get_worker_info().name, self.test_num))
-            
-    def run_episode(self, args):
-        import time
-        from itertools import cycle
-
-        cycle_iter = cycle([100, 200, 300])
-        for item in cycle_iter:
-            print(item)
-            time.sleep(1)
 
 
 class Edge(object):
@@ -70,20 +60,29 @@ def _call_method(method, rref, *args, **kwargs):
     return method(rref.local_value(), *args, **kwargs)
 
 
-def get_host_ip():
-    try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect(('8.8.8.8', 80))
-        ip = s.getsockname()[0]
-    finally:
-        s.close()
-        return ip
+def get_rank_list(args):
+    topo = []
+    count = 0
+    for i in range(args.topo_num[0]):
+        topo.append([])
+    for i in range(len(args.topo_num)):
+        if i == 0:
+            for j in range(args.topo_num[0]):
+                topo[0].append(j)
+        else:
+            count = topo[i - 1][-1] + 1
+            for j in range(args.topo_num[i] - 1):
+                topo[i].append(count)
+                count += 1
+    return topo
 
 
 def run_worker(args):
+    print("waiting for connecting......")
+    topo = get_rank_list(args)
+    print(topo)
     # The 0 subnet
     if args.subnet == 0:
-        print("waiting for connecting......")
         # The server
         if args.rank == 0:
             os.environ['MASTER_ADDR'] = args.addr
@@ -97,10 +96,6 @@ def run_worker(args):
                 server.edge_rrefs.append(rpc.remote(edge_info, Edge, args=(args,)))
             print("The subnet {} RRef map has been created successfully!".format(args.subnet))
             print("The length of RRef is {}".format(len(server.edge_rrefs)))
-            for edge_rank in range(1, args.world_size):
-                server.make_subnet(args, edge_rank)
-            # for i in range(args.EPOCH):
-            #     server.run_episode(i, args)
 
         else:
             os.environ['MASTER_ADDR'] = args.addr
@@ -110,9 +105,8 @@ def run_worker(args):
             print("{} has been initialized successfully".format(rpc.get_worker_info().name))
     
     else:
-        print("waiting for connecting......")
         os.environ['MASTER_ADDR'] = args.addr
-        os.environ['MASTER_PORT'] = '29501'
+        os.environ['MASTER_PORT'] = args.port
         os.environ["GLOO_SOCKET_IFNAME"] = "wlan0"
         rpc.init_rpc(name='worker{}'.format(args.rank), rank=args.rank, world_size=2)
         print("{} has been initialized successfully".format(rpc.get_worker_info().name))
