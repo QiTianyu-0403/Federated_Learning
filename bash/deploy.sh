@@ -5,9 +5,9 @@ PASSWORD=raspberry
 SEVER=qty-tp
 
 # nameworker=(raspi8 raspi9 raspi10)
-# IP_raspi8=192.168.1.104
-# IP_raspi9=192.168.1.101:
-# IP_raspi10=192.168.1.103
+# IP_raspi8=192.168.0.104
+# IP_raspi9=192.168.0.101:
+# IP_raspi10=192.168.0.103
 
 SRCDIR_root=/Users/qitianyu/Master/Semester1/Federated_learning/
 dir1=FL_models
@@ -39,24 +39,24 @@ for_in_file(){
       sleep 1
    done
 
-   scp -v -r ${dir1} jason@192.168.1.112:${DESDIR1}
-   scp -v -r ${dir2} jason@192.168.1.112:${DESDIR1}
-   scp -v -r ${dir3} jason@192.168.1.112:${DESDIR1}
-   scp -v -r ${dir4} jason@192.168.1.112:${DESDIR1}
-   scp -v -r ${dir5} jason@192.168.1.112:${DESDIR1}
-   scp -v -r ${dir6} jason@192.168.1.112:${DESDIR1}
-   scp ${file1} jason@192.168.1.112:${DESDIR1}
-   echo "Deploy for 192.168.1.112 is done"
+   scp -v -r ${dir1} jason@192.168.0.104:${DESDIR1}
+   scp -v -r ${dir2} jason@192.168.0.104:${DESDIR1}
+   scp -v -r ${dir3} jason@192.168.0.104:${DESDIR1}
+   scp -v -r ${dir4} jason@192.168.0.104:${DESDIR1}
+   scp -v -r ${dir5} jason@192.168.0.104:${DESDIR1}
+   scp -v -r ${dir6} jason@192.168.0.104:${DESDIR1}
+   scp ${file1} jason@192.168.0.104:${DESDIR1}
+   echo "Deploy for 192.168.0.104 is done"
    sleep 1
 
-   scp -v -r ${dir1} jason@192.168.1.113:${DESDIR1}
-   scp -v -r ${dir2} jason@192.168.1.113:${DESDIR1}
-   scp -v -r ${dir3} jason@192.168.1.113:${DESDIR1}
-   scp -v -r ${dir4} jason@192.168.1.113:${DESDIR1}
-   scp -v -r ${dir5} jason@192.168.1.113:${DESDIR1}
-   scp -v -r ${dir6} jason@192.168.1.113:${DESDIR1}
-   scp ${file1} jason@192.168.1.113:${DESDIR1}
-   echo "Deploy for 192.168.1.113 is done"
+   scp -v -r ${dir1} jason@192.168.0.114:${DESDIR1}
+   scp -v -r ${dir2} jason@192.168.0.114:${DESDIR1}
+   scp -v -r ${dir3} jason@192.168.0.114:${DESDIR1}
+   scp -v -r ${dir4} jason@192.168.0.114:${DESDIR1}
+   scp -v -r ${dir5} jason@192.168.0.114:${DESDIR1}
+   scp -v -r ${dir6} jason@192.168.0.114:${DESDIR1}
+   scp ${file1} jason@192.168.0.114:${DESDIR1}
+   echo "Deploy for 192.168.0.114 is done"
    sleep 1
 
    # # For qty-TP:

@@ -29,7 +29,7 @@ def main():
 
     parser.add_argument("-fm", "--FL_model", help="the model of FL: FL/HFL", type=str,default="HFL")
     parser.add_argument("-p", "--port", help="the port used for rpc initialization", type=str,default="29500")
-    parser.add_argument("-a", "--addr", help="the addr used for server", type=str, default="192.168.1.101")
+    parser.add_argument("-a", "--addr", help="the addr used for server", type=str, default="192.168.0.108")
     parser.add_argument("-r", "--rank", help="rank of this process", type=int, default=0)
     parser.add_argument("-tn", "--topo_num", help="the num of the topo", type=list, default=[3, 2, 2])
     parser.add_argument("-ws", "--world_size", help="number of process in group", type=int, default=5)

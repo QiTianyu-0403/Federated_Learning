@@ -28,14 +28,35 @@ class Server(object):
         print('The subnet has been finished!')
         
     def run_edge_episode(self, epoch_s, args):
-        print('Round: {}'.format(epoch_s + 1))
-        
-        futs = []
-        for edge_rref in self.edge_rrefs:
-            futs.append(rpc.rpc_async(edge_rref.owner(), _call_method, args=(Edge.run_worker_episode, \
-                edge_rref), timeout=0))
-        for fut in futs:
-            fut.wait()
+        print('Server Round: {}'.format(epoch_s + 1))
+        para = self.model.state_dict()
+        for i in range(args.epoch_edge):
+            futs, update_paras, data_num, data_sum_num = [], [], [], []
+            for edge_rref in self.edge_rrefs:
+                futs.append(rpc.rpc_async(edge_rref.owner(), _call_method, args=(Edge.run_worker_episode, \
+                    edge_rref, i, para, args), timeout=0))
+            for fut in futs:
+                update_model, edge_data = fut.wait()
+                update_paras.append(update_model)
+                data_sum_num.append(edge_data)
+            # Get the each Edge sum data
+            for j in range(len(data_sum_num)):
+                data_num.append(sum(data_sum_num[j]))
+            print('server', data_num)
+            self.model_average(*update_paras, data_num = data_num)
+        print('test')
+                
+    def model_average(self, *local_weights, data_num):
+        global_weight = OrderedDict()
+        server_data_sum = sum(data_num)
+        for index, local_update in enumerate([*local_weights]):
+            weight = data_num[index]/server_data_sum
+            for key in self.model.state_dict().keys():
+                if index == 0:
+                    global_weight[key] = weight*local_update[key]    
+                else:
+                    global_weight[key] += weight*local_update[key]
+        self.model.set_weights(global_weight)
 
 
 class Edge(object):
@@ -52,21 +73,23 @@ class Edge(object):
         print("The Edge {} RRef map has been created successfully!".format(len(topo[id])))
         print("The length of RRef is {}".format(len(self.worker_rrefs)))
         
-    def run_worker_episode(self, epoch_e):
-        print('Round: {}'.format(epoch_e + 1))
-        
+    def run_worker_episode(self, epoch_e, para, args):
+        print('Edge Round: {}'.format(epoch_e + 1))
+        self.model.load_state_dict(para)
         futs, update_paras = [], []
         weight_futs, data_num = [], []
         for worker_rref in self.worker_rrefs:
             futs.append(rpc.rpc_async(worker_rref.owner(), _call_method, args=(Worker.run_episode, \
-                worker_rref), timeout=0))
+                worker_rref, para, args), timeout=0))
             weight_futs.append(rpc.rpc_async(worker_rref.owner(), _call_method, args=(Worker.get_data_num, \
                 worker_rref), timeout=0))
         for fut in futs:
-            fut.wait()
+            update_paras.append(fut.wait())
         for weight_fut in weight_futs:
             data_num.append(weight_fut.wait())
         self.model_average(*update_paras, data_num = data_num)
+        print('edge', data_num)
+        return self.model.state_dict(), data_num
     
     def model_average(self, *local_weights, data_num):
         global_weight = OrderedDict()
