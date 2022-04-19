@@ -18,6 +18,7 @@ class Server(object):
         self.edge_rrefs = []
         print("{} has received the {} data successfully!".format(rpc.get_worker_info().name, self.test_num))
 
+    # Get the worker's RRef
     def make_subnet(self, topo, args):
         futs = []
         for edge_rref in self.edge_rrefs:
@@ -30,7 +31,9 @@ class Server(object):
     def run_edge_episode(self, epoch_s, args):
         print('Server Round: {}'.format(epoch_s + 1))
         para = self.model.state_dict()
+        # The 2st epoch Edge_Round
         for i in range(args.epoch_edge):
+            # The Edge data information (Sum the workers data they link) is in data_num
             futs, update_paras, data_num, data_sum_num = [], [], [], []
             for edge_rref in self.edge_rrefs:
                 futs.append(rpc.rpc_async(edge_rref.owner(), _call_method, args=(Edge.run_worker_episode, \
@@ -45,7 +48,7 @@ class Server(object):
             print('server', data_num)
             self.model_average(*update_paras, data_num = data_num)
         print('test')
-                
+        
     def model_average(self, *local_weights, data_num):
         global_weight = OrderedDict()
         server_data_sum = sum(data_num)
@@ -112,6 +115,7 @@ class Worker(object):
 
     def run_episode(self, para, args):
         # for model: CNN / MobileNet / ResNet-18 / LSTM
+        # The 3st epoch Worker_Round
         print('-----------------Worker {} is running!-----------------'.format(self.idx))
         if args.model != "lstm":
             self.model.load_state_dict(para)
@@ -200,7 +204,7 @@ def run_worker(args):
         print("The Server {} RRef map has been created successfully!".format(args.topo_num[0]))
         print("The length of RRef is {}".format(len(server.edge_rrefs)))
         server.make_subnet(topo, args)
-        # The 1st epoch round
+        # The 1st epoch Server_Round
         for i in range(args.EPOCH):
             server.run_edge_episode(i, args)
 
