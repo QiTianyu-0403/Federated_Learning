@@ -46,8 +46,8 @@ class Server(object):
             for j in range(len(data_sum_num)):
                 data_num.append(sum(data_sum_num[j]))
             print('server', data_num)
-            self.model_average(*update_paras, data_num = data_num)
-        print('test')
+        self.model_average(*update_paras, data_num = data_num)
+        self.evaluate(args, epoch_s)
         
     def model_average(self, *local_weights, data_num):
         global_weight = OrderedDict()
@@ -60,6 +60,30 @@ class Server(object):
                 else:
                     global_weight[key] += weight*local_update[key]
         self.model.set_weights(global_weight)
+        
+    def evaluate(self, args, epoch_s):
+        with open("./acc/" + "acc_" + args.model + "_" + args.data + ".txt", "w") as f:
+            print("Waiting Test!")
+            self.model.eval()
+            with torch.no_grad():
+                # for model: CNN / MobileNet / ResNet18
+                if args.model != 'lstm': 
+                    correct = 0
+                    total = 0
+                    for data in self.test_loader:
+                        self.model.eval()
+                        images, labels = data
+                        images, labels = images.to(self.device), labels.to(self.device)
+                        outputs = self.model(images)
+                        # 取得分最高的那个类 (outputs.data的索引号)
+                        _, predicted = torch.max(outputs.data, 1)
+                        total += labels.size(0)
+                        correct += (predicted == labels).sum()
+                    print('The Global Test Accuracy is: %.3f%%' % (100. * correct / total))
+                    acc = 100. * correct / total
+                    f.write("EPOCH=%03d,Accuracy= %.3f%%" % (epoch_s + 1, acc))
+                    f.write('\n')
+                    f.flush()
 
 
 class Edge(object):
