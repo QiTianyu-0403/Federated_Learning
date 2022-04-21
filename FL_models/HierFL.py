@@ -62,9 +62,8 @@ class Server(object):
         self.model.set_weights(global_weight)
         
     def evaluate(self, args, epoch_s):
-        with open("./acc/" + "acc_" + args.model + "_" + args.data + ".txt", "w") as f:
+        with open("./acc/" + "acc_" + args.model + "_" + args.data + ".txt", "a") as f:
             print("Waiting Test!")
-            self.model.eval()
             with torch.no_grad():
                 # for model: CNN / MobileNet / ResNet18
                 if args.model != 'lstm': 
@@ -228,6 +227,8 @@ def run_worker(args):
         print("The Server {} RRef map has been created successfully!".format(args.topo_num[0]))
         print("The length of RRef is {}".format(len(server.edge_rrefs)))
         server.make_subnet(topo, args)
+        if (os.path.exists("./acc/" + "acc_" + args.model + "_" + args.data + ".txt")) :
+            os.remove("./acc/" + "acc_" + args.model + "_" + args.data + ".txt")
         # The 1st epoch Server_Round
         for i in range(args.EPOCH):
             server.run_edge_episode(i, args)

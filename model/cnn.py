@@ -60,11 +60,11 @@ class CNN4Cifar(nn.Module):
 class CNN4lite(nn.Module):
     def __init__(self):
         super(CNN4lite, self).__init__()
-        self.conv1 = nn.Conv2d(1, 16, 3, 1)
-        self.conv2 = nn.Conv2d(16, 32, 3, 1)
+        self.conv1 = nn.Conv2d(1, 4, 3, 1)
+        self.conv2 = nn.Conv2d(4, 12, 3, 1)
         self.dropout1 = nn.Dropout(0.25)
         self.dropout2 = nn.Dropout(0.5)
-        self.fc1 = nn.Linear(4608, 128)
+        self.fc1 = nn.Linear(1728, 128)
         self.fc2 = nn.Linear(128, 10)
 
     def forward(self, x):

@@ -18,12 +18,12 @@ def main():
     parser.add_argument("-m", "--model", help="resnet18 or lstm or cnn or mobilenet", type=str, default='cnn')
     parser.add_argument("-d", "--data", help="Cifar or  MINIST or FMNIST or Shakespeare", type=str, default='Cifar')
     parser.add_argument("-bs", "--batchsize", help="the batch size of each epoch", type=int, default=128)
-    parser.add_argument("-e", "--EPOCH", help="the number of epochs", type=int, default=4)
+    parser.add_argument("-e", "--EPOCH", help="the number of epochs", type=int, default=50)
     parser.add_argument("-lr", "--learning_rate", help="learning rate", type=float, default=0.01)
-    parser.add_argument("-nm", "--noniid_model", help="quantity_noniid or label_noniid or iid", type=str, default='quantity_noniid')
+    parser.add_argument("-nm", "--noniid_model", help="quantity_noniid or label_noniid or iid", type=str, default='iid')
     parser.add_argument("-iu", "--idx_user", help="Select the client number(<=num_users)", type=int, default=0)
     parser.add_argument("-nu", "--num_users", help="The number of clients", type=int, default=2)
-    parser.add_argument("-ts", "--total_samples", help="The total samples of each clients", type=int, default=2000)
+    parser.add_argument("-ts", "--total_samples", help="The total samples of each clients", type=int, default=20000)
     parser.add_argument("-ru", "--rate_unbalance", help="The proportion of noniid (<=1.0) ", type=float, default=0.6)
     parser.add_argument("-nc", "--num_class", help="The classes number of noniid (<=10) ", type=int, default=2)
 
@@ -33,8 +33,8 @@ def main():
     parser.add_argument("-r", "--rank", help="rank of this process", type=int, default=0)
     parser.add_argument("-tn", "--topo_num", help="the num of the topo", type=list, default=[3, 2, 2])
     parser.add_argument("-ws", "--world_size", help="number of process in group", type=int, default=5)
-    parser.add_argument("-ew", "--epoch_worker", help="the num of per worker run", type=int, default=2)
-    parser.add_argument("-ee", "--epoch_edge", help="the num of per edge run", type=int, default=2)
+    parser.add_argument("-ew", "--epoch_worker", help="the num of per worker run", type=int, default=1)
+    parser.add_argument("-ee", "--epoch_edge", help="the num of per edge run", type=int, default=1)
     args = parser.parse_args()
 
     """
