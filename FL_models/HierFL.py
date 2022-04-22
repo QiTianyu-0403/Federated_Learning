@@ -83,6 +83,38 @@ class Server(object):
                     f.write("EPOCH=%03d,Accuracy= %.3f%%" % (epoch_s + 1, acc))
                     f.write('\n')
                     f.flush()
+                    
+                # for model: LSTM
+                if args.model == 'lstm':
+                    data_ptr = 0
+                    hidden_state = None
+                    sum_correct = 0
+                    sum_test = 0
+
+                    # random character from data to begin
+                    rand_index = np.random.randint(100)
+
+                    while True:
+                        input_seq = self.test_loader[rand_index + data_ptr: rand_index + data_ptr + 1]
+                        target_seq = self.test_loader[rand_index + data_ptr + 1: rand_index + data_ptr + 2]
+                        output, hidden_state = self.model(input_seq, hidden_state)
+
+                        output = F.softmax(torch.squeeze(output), dim=0)
+                        dist = Categorical(output)
+                        index = dist.sample()
+
+                        if index.item() == target_seq[0][0]:
+                            sum_correct += 1
+                        sum_test += 1
+                        data_ptr += 1
+
+                        if data_ptr > self.test_loader.size(0) - rand_index - 2:
+                            break
+                    print('The Global Test Accuracy is: %.3f%%' % (100. * sum_correct / sum_test))
+                    acc = 100. * sum_correct / sum_test
+                    f.write("EPOCH=%03d,Accuracy= %.3f%%" % (epoch_s + 1, acc))
+                    f.write('\n')
+                    f.flush()
 
 
 class Edge(object):
@@ -169,6 +201,50 @@ class Worker(object):
                     correct += predicted.eq(labels.data).cpu().sum()
                     print('[epoch:%d, iter:%d] Loss: %.03f | Acc: %.3f%% ----Rank%d'
                           % (epoch + 1, (i + 1 + epoch * length), sum_loss / (i + 1), 100. * correct / total, self.idx))
+            local_para = self.model.state_dict()
+            return local_para
+        
+        if args.model == "lstm":
+            self.model.load_state_dict(para)
+            self.model.zero_grad()
+            pre_epoch = 0
+            iter = 0
+            for epoch in range(pre_epoch, args.epoch_worker):
+                print('\nEpoch: %d' % (epoch + 1))
+                
+                data_ptr = np.random.randint(100)
+                n = 0
+                sum_loss = 0
+                correct = 0.0
+                total = 0.0
+                hidden_state = None
+                
+                while True:
+                    input_seq = self.train_loader[data_ptr: data_ptr + args.batchsize]
+                    target_seq = self.train_loader[data_ptr + 1: data_ptr + args.batchsize + 1]
+                    input_seq, target_seq = input_seq.to(self.device), target_seq.to(self.device)
+                    self.optimizer.zero_grad()
+                    
+                    # forward + backward
+                    output, hidden_state = self.model(input_seq, hidden_state)
+                    loss = self.criterion(torch.squeeze(output), torch.squeeze(target_seq))
+                    loss.backward()
+                    self.optimizer.step()
+                    
+                    # loss + acc
+                    sum_loss += loss.item()
+                    _, predicted = torch.max(torch.squeeze(output).data, 1)
+                    total += torch.squeeze(target_seq).size(0)
+                    correct += predicted.eq(torch.squeeze(target_seq).data).cpu().sum()
+                    print('[epoch:%d, iter:%d] Loss: %.03f | Acc: %.3f%% '
+                          % (epoch + 1, iter + 1, sum_loss / (n + 1), 100. * correct / total))
+                    
+                    data_ptr += args.batchsize
+                    n += 1
+                    iter += 1
+
+                    if data_ptr + args.batchsize + 1 > self.train_loader.size(0):
+                        break
             local_para = self.model.state_dict()
             return local_para
         

@@ -33,7 +33,7 @@ def main():
     parser.add_argument("-r", "--rank", help="rank of this process", type=int, default=0)
     parser.add_argument("-tn", "--topo_num", help="the num of the topo", type=list, default=[3, 2, 2])
     parser.add_argument("-ws", "--world_size", help="number of process in group", type=int, default=5)
-    parser.add_argument("-ew", "--epoch_worker", help="the num of per worker run", type=int, default=1)
+    parser.add_argument("-ew", "--epoch_worker", help="the num of per worker run", type=int, default=3)
     parser.add_argument("-ee", "--epoch_edge", help="the num of per edge run", type=int, default=1)
     args = parser.parse_args()
 
