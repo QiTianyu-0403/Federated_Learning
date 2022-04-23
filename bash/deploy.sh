@@ -20,10 +20,21 @@ file1=main.py
 
 DESDIR=/home/pi/qitianyu/Federated_learning/
 DESDIR1=/home/jason/qitianyu/Federated_learning/
-SERVER_DESDIR=/home/qty-tp/Semester2/Federated_learning/
+SERVER_DESDIR=/home/qty-tp/qitianyu/Federated_learning/
 FILENAME=./bash/ip.txt
 
 for_in_file(){
+
+   scp -v -r ${dir1} qty-tp@192.168.0.105:${SERVER_DESDIR}
+   scp -v -r ${dir2} qty-tp@192.168.0.105:${SERVER_DESDIR}
+   scp -v -r ${dir3} qty-tp@192.168.0.105:${SERVER_DESDIR}
+   scp -v -r ${dir4} qty-tp@192.168.0.105:${SERVER_DESDIR}
+   scp -v -r ${dir5} qty-tp@192.168.0.105:${SERVER_DESDIR}
+   scp -v -r ${dir6} qty-tp@192.168.0.105:${SERVER_DESDIR}
+   scp ${file1} qty-tp@192.168.0.105:${SERVER_DESDIR}
+   echo "Deploy for 192.168.0.105 is done"
+   sleep 1
+
    # For rapberrys:
    for ip in `cat $FILENAME`
    do

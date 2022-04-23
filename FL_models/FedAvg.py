@@ -220,7 +220,7 @@ def run_worker(args):
     print("waiting for connecting......")
 
     if args.rank == 0:
-        os.environ["GLOO_SOCKET_IFNAME"] = "wlan0"
+        os.environ["GLOO_SOCKET_IFNAME"] = "wlp4s0"
         rpc.init_rpc(name='server', rank=args.rank, world_size=args.world_size)
         print("{} has been initialized successfully".format(rpc.get_worker_info().name))
         server = Server(args)
