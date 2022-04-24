@@ -16,7 +16,7 @@ class Server(object):
         self.device, _, self.test_loader, self.model, _, self.optimizer, _, self.test_num = init_fuc(args)
         self.server_rref = rpc.RRef(self)
         self.edge_rrefs = []
-        print("{} has received the {} data successfully!".format(rpc.get_worker_info().name, self.test_num))
+        print(f"{rpc.get_worker_info().name} has received the {self.test_num} data successfully!")
 
     # Get the worker's RRef
     def make_subnet(self, topo, args):
@@ -29,7 +29,7 @@ class Server(object):
         print('The subnet has been finished!')
         
     def run_edge_episode(self, epoch_s, args):
-        print('Server Round: {}'.format(epoch_s + 1))
+        print(f'Server Round: {epoch_s + 1}')
         para = self.model.state_dict()
         # The 2st epoch Edge_Round
         for i in range(args.epoch_edge):
@@ -43,8 +43,7 @@ class Server(object):
                 update_paras.append(update_model)
                 data_sum_num.append(edge_data)
             # Get the each Edge sum data
-            for j in range(len(data_sum_num)):
-                data_num.append(sum(data_sum_num[j]))
+            data_num.extend(sum(item) for item in data_sum_num)
             print('server', data_num)
         self.model_average(*update_paras, data_num = data_num)
         self.evaluate(args, epoch_s)
@@ -126,13 +125,13 @@ class Edge(object):
     def get_worker_rref(self, id, topo, args):
         for worker_rank in topo[id]:
             args.idx_user = worker_rank - len(topo[0])
-            worker_info = rpc.get_worker_info('worker{}'.format(worker_rank))
+            worker_info = rpc.get_worker_info(f'worker{worker_rank}')
             self.worker_rrefs.append(rpc.remote(worker_info, Worker, args=(args,)))
-        print("The Edge {} RRef map has been created successfully!".format(len(topo[id])))
-        print("The length of RRef is {}".format(len(self.worker_rrefs)))
+        print(f"The Edge {len(topo[id])} RRef map has been created successfully!")
+        print(f"The length of RRef is {len(self.worker_rrefs)}")
         
     def run_worker_episode(self, epoch_e, para, args):
-        print('Edge Round: {}'.format(epoch_e + 1))
+        print(f'Edge Round: {epoch_e + 1}')
         self.model.load_state_dict(para)
         futs, update_paras = [], []
         weight_futs, data_num = [], []
@@ -141,10 +140,8 @@ class Edge(object):
                 worker_rref, para, args), timeout=0))
             weight_futs.append(rpc.rpc_async(worker_rref.owner(), _call_method, args=(Worker.get_data_num, \
                 worker_rref), timeout=0))
-        for fut in futs:
-            update_paras.append(fut.wait())
-        for weight_fut in weight_futs:
-            data_num.append(weight_fut.wait())
+        update_paras.extend(fut.wait() for fut in futs)
+        data_num.extend(weight_fut.wait() for weight_fut in weight_futs)
         self.model_average(*update_paras, data_num = data_num)
         print('edge', data_num)
         return self.model.state_dict(), data_num
@@ -166,12 +163,12 @@ class Worker(object):
     def __init__(self, args):
         self.device, self.train_loader, _, self.model, self.criterion, self.optimizer, self.train_num, _ = init_fuc(args)
         self.idx = args.idx_user + 1
-        print("{} has received the {} data successfully!".format(rpc.get_worker_info().name, self.train_num))
+        print(f"{rpc.get_worker_info().name} has received the {self.train_num} data successfully!")
 
     def run_episode(self, para, args):
         # for model: CNN / MobileNet / ResNet-18 / LSTM
         # The 3st epoch Worker_Round
-        print('-----------------Worker {} is running!-----------------'.format(self.idx))
+        print(f'-----------------Worker {self.idx} is running!-----------------')
         if args.model != "lstm":
             self.model.load_state_dict(para)
             self.model.zero_grad()
@@ -203,7 +200,7 @@ class Worker(object):
                           % (epoch + 1, (i + 1 + epoch * length), sum_loss / (i + 1), 100. * correct / total, self.idx))
             local_para = self.model.state_dict()
             return local_para
-        
+
         if args.model == "lstm":
             self.model.load_state_dict(para)
             self.model.zero_grad()
@@ -211,26 +208,26 @@ class Worker(object):
             iter = 0
             for epoch in range(pre_epoch, args.epoch_worker):
                 print('\nEpoch: %d' % (epoch + 1))
-                
+
                 data_ptr = np.random.randint(100)
                 n = 0
                 sum_loss = 0
                 correct = 0.0
                 total = 0.0
                 hidden_state = None
-                
+
                 while True:
                     input_seq = self.train_loader[data_ptr: data_ptr + args.batchsize]
                     target_seq = self.train_loader[data_ptr + 1: data_ptr + args.batchsize + 1]
                     input_seq, target_seq = input_seq.to(self.device), target_seq.to(self.device)
                     self.optimizer.zero_grad()
-                    
+
                     # forward + backward
                     output, hidden_state = self.model(input_seq, hidden_state)
                     loss = self.criterion(torch.squeeze(output), torch.squeeze(target_seq))
                     loss.backward()
                     self.optimizer.step()
-                    
+
                     # loss + acc
                     sum_loss += loss.item()
                     _, predicted = torch.max(torch.squeeze(output).data, 1)
@@ -238,7 +235,7 @@ class Worker(object):
                     correct += predicted.eq(torch.squeeze(target_seq).data).cpu().sum()
                     print('[epoch:%d, iter:%d] Loss: %.03f | Acc: %.3f%% '
                           % (epoch + 1, iter + 1, sum_loss / (n + 1), 100. * correct / total))
-                    
+
                     data_ptr += args.batchsize
                     n += 1
                     iter += 1
@@ -270,17 +267,15 @@ def _call_method(method, rref, *args, **kwargs):
 
 
 def get_rank_list(args):
-    topo = []
     count = 0
-    for i in range(args.topo_num[0]):
-        topo.append([])
+    topo = [[] for _ in range(args.topo_num[0])]
     for i in range(len(args.topo_num)):
         if i == 0:
             for j in range(args.topo_num[0]):
                 topo[0].append(j)
         else:
             count = topo[i - 1][-1] + 1
-            for j in range(args.topo_num[i] - 1):
+            for _ in range(args.topo_num[i] - 1):
                 topo[i].append(count)
                 count += 1
     return topo
@@ -293,15 +288,15 @@ def run_worker(args):
     if args.rank == 0:
         os.environ['MASTER_ADDR'] = args.addr
         os.environ['MASTER_PORT'] = args.port
-        os.environ["GLOO_SOCKET_IFNAME"] = "wlan0"
+        os.environ["GLOO_SOCKET_IFNAME"] = "wlp4s0"
         rpc.init_rpc(name='server', rank=args.rank, world_size=args.world_size)
-        print("{} has been initialized successfully".format(rpc.get_worker_info().name))
+        print(f"{rpc.get_worker_info().name} has been initialized successfully")
         server = Server(args)
         for edge_rank in range(1, args.topo_num[0]):
-            edge_info = rpc.get_worker_info('edge{}'.format(edge_rank))
+            edge_info = rpc.get_worker_info(f'edge{edge_rank}')
             server.edge_rrefs.append(rpc.remote(edge_info, Edge, args=(args,)))
-        print("The Server {} RRef map has been created successfully!".format(args.topo_num[0]))
-        print("The length of RRef is {}".format(len(server.edge_rrefs)))
+        print(f"The Server {args.topo_num[0]} RRef map has been created successfully!")
+        print(f"The length of RRef is {len(server.edge_rrefs)}")
         server.make_subnet(topo, args)
         if (os.path.exists("./acc/" + "acc_" + args.model + "_" + args.data + ".txt")) :
             os.remove("./acc/" + "acc_" + args.model + "_" + args.data + ".txt")
@@ -309,18 +304,16 @@ def run_worker(args):
         for i in range(args.EPOCH):
             server.run_edge_episode(i, args)
 
+    os.environ['MASTER_ADDR'] = args.addr
+    os.environ['MASTER_PORT'] = args.port
     if 0 < args.rank < args.topo_num[0]:
-        os.environ['MASTER_ADDR'] = args.addr
-        os.environ['MASTER_PORT'] = args.port
         os.environ["GLOO_SOCKET_IFNAME"] = "eth0"
-        rpc.init_rpc(name='edge{}'.format(args.rank), rank=args.rank, world_size=args.world_size)
-        print("{} has been initialized successfully".format(rpc.get_worker_info().name))
-    
+        rpc.init_rpc(name=f'edge{args.rank}', rank=args.rank, world_size=args.world_size)
+
     else:
-        os.environ['MASTER_ADDR'] = args.addr
-        os.environ['MASTER_PORT'] = args.port
         os.environ["GLOO_SOCKET_IFNAME"] = "wlan0"
-        rpc.init_rpc(name='worker{}'.format(args.rank), rank=args.rank, world_size=args.world_size)
-        print("{} has been initialized successfully".format(rpc.get_worker_info().name))
+        rpc.init_rpc(name=f'worker{args.rank}', rank=args.rank, world_size=args.world_size)
+
+    print(f"{rpc.get_worker_info().name} has been initialized successfully")
 
     rpc.shutdown()

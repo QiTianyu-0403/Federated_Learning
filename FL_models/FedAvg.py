@@ -17,25 +17,23 @@ class Server(object):
         self.server_rref = rpc.RRef(self)
         self.worker_rrefs = []
         self.world_size = args.world_size
-        print("{} has received the {} data successfully!".format(rpc.get_worker_info().name, self.test_num))
+        print(f"{rpc.get_worker_info().name} has received the {self.test_num} data successfully!")
 
     def run_episode(self, epoch_s, args):
-        print('Round: {}'.format(epoch_s + 1))
-        
+        print(f'Round: {epoch_s + 1}')
+
         # futs: run_episode ; weight_futs: get_data_num 
         futs, update_paras = [], []
         weight_futs, data_num = [], []
-        
+
         para = self.model.state_dict()
         for worker_rref in self.worker_rrefs:
             futs.append(rpc.rpc_async(worker_rref.owner(), _call_method, args=(Worker.run_episode, \
             worker_rref, para, args), timeout=0))
             weight_futs.append(rpc.rpc_async(worker_rref.owner(), _call_method, args=(Worker.get_data_num, \
             worker_rref), timeout=0))
-        for fut in futs:
-            update_paras.append(fut.wait())
-        for weight_fut in weight_futs:
-            data_num.append(weight_fut.wait())
+        update_paras.extend(fut.wait() for fut in futs)
+        data_num.extend(weight_fut.wait() for weight_fut in weight_futs)
         self.model_average(*update_paras, data_num = data_num)
         self.evaluate(args, epoch_s)
 
@@ -112,11 +110,11 @@ class Worker(object):
     def __init__(self, args):
         self.device, self.train_loader, _, self.model, self.criterion, self.optimizer, self.train_num, _ = init_fuc(args)
         self.idx = args.idx_user + 1
-        print("{} has received the {} data successfully!".format(rpc.get_worker_info().name, self.train_num))
+        print(f"{rpc.get_worker_info().name} has received the {self.train_num} data successfully!")
 
     def run_episode(self, para, args):
         # for model: CNN / MobileNet / ResNet-18 / LSTM
-        print('-----------------Worker {} is running!-----------------'.format(self.idx))
+        print(f'-----------------Worker {self.idx} is running!-----------------')
         if args.model != "lstm":
             self.model.load_state_dict(para)
             self.model.zero_grad()
@@ -148,7 +146,7 @@ class Worker(object):
                           % (epoch + 1, (i + 1 + epoch * length), sum_loss / (i + 1), 100. * correct / total, self.idx))
             local_para = self.model.state_dict()
             return local_para
-        
+
         if args.model == "lstm":
             self.model.load_state_dict(para)
             self.model.zero_grad()
@@ -156,26 +154,26 @@ class Worker(object):
             iter = 0
             for epoch in range(pre_epoch, args.epoch_worker):
                 print('\nEpoch: %d' % (epoch + 1))
-                
+
                 data_ptr = np.random.randint(100)
                 n = 0
                 sum_loss = 0
                 correct = 0.0
                 total = 0.0
                 hidden_state = None
-                
+
                 while True:
                     input_seq = self.train_loader[data_ptr: data_ptr + args.batchsize]
                     target_seq = self.train_loader[data_ptr + 1: data_ptr + args.batchsize + 1]
                     input_seq, target_seq = input_seq.to(self.device), target_seq.to(self.device)
                     self.optimizer.zero_grad()
-                    
+
                     # forward + backward
                     output, hidden_state = self.model(input_seq, hidden_state)
                     loss = self.criterion(torch.squeeze(output), torch.squeeze(target_seq))
                     loss.backward()
                     self.optimizer.step()
-                    
+
                     # loss + acc
                     sum_loss += loss.item()
                     _, predicted = torch.max(torch.squeeze(output).data, 1)
@@ -183,7 +181,7 @@ class Worker(object):
                     correct += predicted.eq(torch.squeeze(target_seq).data).cpu().sum()
                     print('[epoch:%d, iter:%d] Loss: %.03f | Acc: %.3f%% '
                           % (epoch + 1, iter + 1, sum_loss / (n + 1), 100. * correct / total))
-                    
+
                     data_ptr += args.batchsize
                     n += 1
                     iter += 1
@@ -222,20 +220,20 @@ def run_worker(args):
     if args.rank == 0:
         os.environ["GLOO_SOCKET_IFNAME"] = "wlp4s0"
         rpc.init_rpc(name='server', rank=args.rank, world_size=args.world_size)
-        print("{} has been initialized successfully".format(rpc.get_worker_info().name))
+        print(f"{rpc.get_worker_info().name} has been initialized successfully")
         server = Server(args)
         for work_rank in range(1, args.world_size):
             args.idx_user = work_rank - 1
-            work_info = rpc.get_worker_info('worker{}'.format(work_rank))
+            work_info = rpc.get_worker_info(f'worker{work_rank}')
             server.worker_rrefs.append(rpc.remote(work_info, Worker, args=(args,)))
         print("RRef map has been created successfully!")
-        print("The length of RRef is {}".format(len(server.worker_rrefs)))
+        print(f"The length of RRef is {len(server.worker_rrefs)}")
         for i in range(args.EPOCH):
             server.run_episode(i, args)
 
     else:
         os.environ["GLOO_SOCKET_IFNAME"] = "eth0"
-        rpc.init_rpc(name='worker{}'.format(args.rank), rank=args.rank, world_size=args.world_size)
-        print("{} has been initialized successfully".format(rpc.get_worker_info().name))
+        rpc.init_rpc(name=f'worker{args.rank}', rank=args.rank, world_size=args.world_size)
+        print(f"{rpc.get_worker_info().name} has been initialized successfully")
 
     rpc.shutdown()

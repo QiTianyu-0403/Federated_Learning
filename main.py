@@ -27,14 +27,14 @@ def main():
     parser.add_argument("-ru", "--rate_unbalance", help="The proportion of noniid (<=1.0) ", type=float, default=0.6)
     parser.add_argument("-nc", "--num_class", help="The classes number of noniid (<=10) ", type=int, default=2)
 
-    parser.add_argument("-fm", "--FL_model", help="the model of FL: FL/HFL", type=str,default="FL")
+    parser.add_argument("-fm", "--FL_model", help="the model of FL: FL/HFL", type=str,default="HFL")
     parser.add_argument("-p", "--port", help="the port used for rpc initialization", type=str,default="29500")
     parser.add_argument("-a", "--addr", help="the addr used for server", type=str, default="192.168.0.105")
     parser.add_argument("-r", "--rank", help="rank of this process", type=int, default=0)
     parser.add_argument("-tn", "--topo_num", help="the num of the topo", type=list, default=[3, 2, 2])
-    parser.add_argument("-ws", "--world_size", help="number of process in group", type=int, default=2)
-    parser.add_argument("-ew", "--epoch_worker", help="the num of per worker run", type=int, default=3)
-    parser.add_argument("-ee", "--epoch_edge", help="the num of per edge run", type=int, default=2)
+    parser.add_argument("-ws", "--world_size", help="number of process in group", type=int, default=5) # world_size 
+    parser.add_argument("-ew", "--epoch_worker", help="the num of per worker run", type=int, default=3) # epoch_worker
+    parser.add_argument("-ee", "--epoch_edge", help="the num of per edge run", type=int, default=2) # epoch_edge
     args = parser.parse_args()
 
     """
