@@ -34,7 +34,7 @@ class PolicyNetwork(nn.Module):
 
 class PolicyNetwork_lite(nn.Module):         
     def __init__(self, number_worker, greedy):
-        super(PolicyNetwork, self).__init__()
+        super(PolicyNetwork_lite, self).__init__()
         self.tier = int(number_worker / 2)
         self.num_worker = number_worker
         self.greedy = greedy
