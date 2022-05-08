@@ -30,22 +30,21 @@ class Server(object):
         print('The subnet has been finished!')
         
     def run_edge_episode(self, epoch_s, args):
+        print('=========================')
         print(f'Server Round: {epoch_s + 1}')
         para = self.model.state_dict()
-        # The 2st epoch Edge_Round
-        for i in range(args.epoch_edge):
-            # The Edge data information (Sum the workers data they link) is in data_num
-            futs, update_paras, data_num, data_sum_num = [], [], [], []
-            for edge_rref in self.edge_rrefs:
-                futs.append(rpc.rpc_async(edge_rref.owner(), _call_method, args=(Edge.run_worker_episode, \
-                    edge_rref, i, para, args), timeout=0))
-            for fut in futs:
-                update_model, edge_data = fut.wait()
-                update_paras.append(update_model)
-                data_sum_num.append(edge_data)
-            # Get the each Edge sum data
-            data_num.extend(sum(item) for item in data_sum_num)
-            print('server', data_num)
+        # The Edge data information (Sum the workers data they link) is in data_num
+        futs, update_paras, data_num, data_sum_num = [], [], [], []
+        for edge_rref in self.edge_rrefs:
+            futs.append(rpc.rpc_async(edge_rref.owner(), _call_method, args=(Edge.run_worker_episode, \
+                edge_rref, para, args), timeout=0))
+        for fut in futs:
+            update_model, edge_data = fut.wait()
+            update_paras.append(update_model)
+            data_sum_num.append(edge_data)
+        # Get the each Edge sum data
+        data_num.extend(sum(item) for item in data_sum_num)
+        print('server link data: ', data_num)
         self.model_average(*update_paras, data_num = data_num)
         self.evaluate(args, epoch_s)
         
@@ -131,20 +130,23 @@ class Edge(object):
         print(f"The Edge {len(topo[id])} RRef map has been created successfully!")
         print(f"The length of RRef is {len(self.worker_rrefs)}")
         
-    def run_worker_episode(self, epoch_e, para, args):
-        print(f'Edge Round: {epoch_e + 1}')
-        self.model.load_state_dict(para)
-        futs, update_paras = [], []
-        weight_futs, data_num = [], []
-        for worker_rref in self.worker_rrefs:
-            futs.append(rpc.rpc_async(worker_rref.owner(), _call_method, args=(Worker.run_episode, \
-                worker_rref, para, args), timeout=0))
-            weight_futs.append(rpc.rpc_async(worker_rref.owner(), _call_method, args=(Worker.get_data_num, \
-                worker_rref), timeout=0))
-        update_paras.extend(fut.wait() for fut in futs)
-        data_num.extend(weight_fut.wait() for weight_fut in weight_futs)
-        self.model_average(*update_paras, data_num = data_num)
-        print('edge', data_num)
+    def run_worker_episode(self, para, args):
+        # The 2st epoch Edge_Round
+        for i in range(args.epoch_edge):
+            print('=========================')
+            print(f'Edge Round: {i + 1}')
+            self.model.load_state_dict(para)
+            futs, update_paras = [], []
+            weight_futs, data_num = [], []
+            for worker_rref in self.worker_rrefs:
+                futs.append(rpc.rpc_async(worker_rref.owner(), _call_method, args=(Worker.run_episode, \
+                    worker_rref, para, args), timeout=0))
+                weight_futs.append(rpc.rpc_async(worker_rref.owner(), _call_method, args=(Worker.get_data_num, \
+                    worker_rref), timeout=0))
+            update_paras.extend(fut.wait() for fut in futs)
+            data_num.extend(weight_fut.wait() for weight_fut in weight_futs)
+            self.model_average(*update_paras, data_num = data_num)
+        print('edge link data: ', data_num)
         return self.model.state_dict(), data_num
     
     def model_average(self, *local_weights, data_num):
