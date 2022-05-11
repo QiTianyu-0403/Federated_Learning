@@ -35,3 +35,9 @@ class Tem():
         del self.reward[:]
         del self.don[:]
         del self.v[:]
+    
+    def append_tem(self, reward, sec_obs, sec_action, sec_don):
+        self.reward.append(reward)
+        self.obs.extend(sec_obs.copy())
+        self.action.extend(sec_action.copy())
+        self.don.extend(sec_don.copy())

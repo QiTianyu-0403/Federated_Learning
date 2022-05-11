@@ -139,7 +139,7 @@ class Agent(object):
             for index, flag in enumerate(batch_done):
                 v[index] = batch_reward[j]
                 if flag == True: j = j + 1
-
+            
             one_loss = torch.sum(torch.mul(action_dist.log_prob(batch_action), v).mul(-1))
             total_loss = total_loss + one_loss
         total_loss = total_loss / len(rewards)

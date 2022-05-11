@@ -3,6 +3,7 @@ from drl.environment import Env
 from drl.memory import Memory
 from drl.trajectory import Sec, Tem
 from prettytable import PrettyTable
+import random
 
 
 class PPO_server(object):
@@ -19,12 +20,14 @@ class PPO_server(object):
         training_count = 0
         last_accuracy, accuracy = 0, 0
         state, observer = self.env.reset()
-        print('hello')
+        
         # Round learning
         while True:
             self.env.done, don=False, False
             self.sec.clear_sec()
             table = PrettyTable(['Current state', 'Action', 'Next state'])
+            
+            # Episode learning
             while not don:
                 action, probs, value = self.agent.choose_action(observer)
                 next_state, next_observer, don = self.env.step(action)
@@ -32,6 +35,18 @@ class PPO_server(object):
                 if not don:
                     table.add_row([state.numpy().astype(int), action, next_state.numpy().astype(int)])
                 state, observer = next_state,next_observer
+            table.add_row(['*', '*', '*'])
+            table.add_row([state.numpy().astype(int), action, next_state.numpy().astype(int)])
             print(table)
-            break
-        print(action, probs, value)
+            print("Starting FL with state:", next_state.numpy().astype(int))
+            
+            training_count += 1
+            # server.run_epision(epoch_n, args)
+            if training_count >= args.epoch_agent:
+                print("Round out, end this round! ")
+                break
+            # accuracy = server.evaluate()
+            accuracy = random.randint(0,9)
+            print(f"Iter: {training_count}, accuracy: {accuracy}")
+            reward = accuracy - last_accuracy
+            self.tem.append_tem(reward, self.sec.obs, self.sec.action, self.sec.don)

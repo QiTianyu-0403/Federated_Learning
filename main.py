@@ -41,6 +41,7 @@ def main():
     
     '''DRL'''
     parser.add_argument("-tf", "--traj_fre", help="The frequency of trajector", type=int, default=5)
+    parser.add_argument("-ea", "--epoch_agent", help="The epoch of agent to learn", type=int, default=3)
     parser.add_argument("-g", "--greedy", help="select greedy", type=float, default=0.1)
     args = parser.parse_args()
 
@@ -55,7 +56,7 @@ def main():
     #     train_lstm(args)
     # if args.model == 'mobilenet':
     #     train_mobilenet(args)
-
+    
     '''
     This part is for RPC training, including the following:
     FedAvg:
