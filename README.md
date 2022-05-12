@@ -99,3 +99,11 @@ In this way we can get the number of data from 10 classes as ``0:[33 33 33 33 33
 🔸 **(d)** Train the ``1th`` client in (c) with ``cnn`` model, ``128`` batchsize, ``1000`` epochs.
 
 ```python main.py -m cnn -d FMNIST -bs 128 -e 1000 -nm quantity_noniid -nu 3 -ts 500 -iu 1```
+
+---
+
+## Federated Learning
+
+### FL
+
+If you want to run FL, you should set the file in ``main.py``. You can run this code in different equipments.
