@@ -3,20 +3,20 @@ class Sec():
         self.obs = []
         self.action = []
         self.don = []
-        self.probs = []
+        self.prob = []
         self.value = []
     
     def clear_sec(self):
         del self.obs[:]
         del self.action[:]
         del self.don[:]
-        del self.probs[:]
+        del self.prob[:]
         del self.value[:]
         
     def append_sec(self, observer, action, probs, value, don):
         self.obs.append(observer.numpy())
         self.action.append(action)
-        self.probs.append(probs)
+        self.prob.append(probs)
         self.value.append(value)
         self.don.append(don)
 
@@ -24,20 +24,24 @@ class Sec():
 class Tem():
     def __init__(self):
         self.obs = []
-        self.action = []
-        self.reward = []
-        self.don = []
-        self.v = []
+        self.actions = []
+        self.rewards = []
+        self.probs = []
+        self.values = []
+        self.done = []
     
     def clear_tem(self):
         del self.obs[:]
-        del self.action[:]
-        del self.reward[:]
-        del self.don[:]
-        del self.v[:]
+        del self.actions[:]
+        del self.rewards[:]
+        del self.probs[:]
+        del self.values[:]
+        del self.done[:]
     
-    def append_tem(self, reward, sec_obs, sec_action, sec_don):
-        self.reward.append(reward)
+    def append_tem(self, reward, sec_obs, sec_action, sec_probs, sec_values, sec_don):
+        self.rewards.append(reward)
         self.obs.extend(sec_obs.copy())
-        self.action.extend(sec_action.copy())
-        self.don.extend(sec_don.copy())
+        self.actions.extend(sec_action.copy())
+        self.probs.extend(sec_probs.copy())
+        self.values.extend(sec_values.copy())
+        self.done.extend(sec_don.copy())
