@@ -125,25 +125,9 @@ class Agent(object):
         value = self.critic(observer.unsqueeze(0).unsqueeze(0)).item()
         return action, probs, value
 
-    def learn(self, observers, actions, rewards, done):
-        total_loss = 0
-        for i in range(len(rewards)):
-            batch_observer = torch.FloatTensor(observers[i]).unsqueeze(1)
-            batch_action = torch.FloatTensor(actions[i])
-            batch_done = torch.FloatTensor(done[i])
-            batch_reward = torch.FloatTensor(rewards[i])
-            action = self.policy(batch_observer)
-            action_dist = Categorical(action)
-            v = torch.zeros(len(batch_done))
-            j = 0
-            for index, flag in enumerate(batch_done):
-                v[index] = batch_reward[j]
-                if flag == True: j = j + 1
-            
-            one_loss = torch.sum(torch.mul(action_dist.log_prob(batch_action), v).mul(-1))
-            total_loss = total_loss + one_loss
-        total_loss = total_loss / len(rewards)
-        self.actor_optim.zero_grad()
-        total_loss.backward()
-        self.actor_optim.step()
+    def learn(self, memory):
+        for i in range(len(memory.rewards)):
+            reward_arr, state_arr, action_arr, vals_arr, old_prob_arr, dones_arr = memory.sample(i)
+            values = vals_arr[:]
+            advantage = np.zeros(len(reward_arr), dtype=np.float32)
         print("Policy has been updated successfully!")

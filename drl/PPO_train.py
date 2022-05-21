@@ -50,6 +50,10 @@ class PPO_server(object):
             print(f"Iter: {training_count}, accuracy: {accuracy}")
             reward = accuracy - last_accuracy
             self.tem.append_tem(reward, self.sec.obs, self.sec.action, self.sec.prob, self.sec.value, self.sec.don)
+            last_accuracy = accuracy
         
         # Memory save
         self.memory.push(self.tem)
+        self.tem.clear_tem()
+        if (epoch_n+1) % 2 == 0:
+            self.agent.learn(self.memory)

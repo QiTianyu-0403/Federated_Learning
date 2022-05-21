@@ -16,9 +16,13 @@ class Memory():
         del self.values[:]
     
     def push(self, tem):
-        self.rewards.append(tem.rewards)
-        self.observers.append(tem.obs)
-        self.actions.append(tem.actions)
-        self.values.append(tem.values)
-        self.probs.append(tem.probs)
-        self.done.append(tem.done)
+        self.rewards.append(tem.rewards.copy())
+        self.observers.append(tem.obs.copy())
+        self.actions.append(tem.actions.copy())
+        self.values.append(tem.values.copy())
+        self.probs.append(tem.probs.copy())
+        self.done.append(tem.done.copy())
+        
+    def sample(self, i):
+        return self.rewards[i], self.observers[i], self.actions[i], self.values[i], \
+            self.probs[i], self.done[i]
