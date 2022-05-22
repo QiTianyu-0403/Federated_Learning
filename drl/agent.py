@@ -118,7 +118,10 @@ class Agent(object):
             self.policy = PolicyNetwork(number_worker, greedy)
             self.critic = CriticNetwork(number_worker)
         self.actor_optim = torch.optim.Adam(self.policy.parameters(), lr = 1e-3)
+        self.critic_optim = torch.optim.Adam(self.critic.parameters(), lr= 1e-3)
         self.gamma = 0.9
+        self.gae_lambda = 0.9
+        self.policy_clip = 0.2
 
     def choose_action(self, observer):
         action, probs = self.policy.select_action(observer.unsqueeze(0).unsqueeze(0))
@@ -126,8 +129,49 @@ class Agent(object):
         return action, probs, value
 
     def learn(self, memory):
+        ### compute one trajectory ###
         for i in range(len(memory.rewards)):
             reward_arr, state_arr, action_arr, vals_arr, old_prob_arr, dones_arr = memory.sample(i)
+            reward_G_arr = torch.zeros(len(dones_arr))
+            num_T = 0
+            
+            # make reward[a, b, c] to reward_G[0, ..., a, 0, ..., b, 0, ..., c]
+            for index, flag in enumerate(dones_arr):
+                reward_G_arr[index] = 0
+                if flag == True: 
+                    reward_G_arr[index] = reward_arr[num_T]
+                    num_T += 1
+            
+            ### compute advantage ###
             values = vals_arr[:]
-            advantage = np.zeros(len(reward_arr), dtype=np.float32)
+            advantage = np.zeros(len(reward_G_arr), dtype=np.float32)
+            for t in range(len(reward_G_arr)-1):
+                discount = 1
+                a_t = 0
+                for k in range(t, len(reward_G_arr)-1):
+                    a_t += discount*(reward_G_arr[k] + self.gamma * values[k+1] - values[k])
+                    discount *= self.gamma * self.gae_lambda
+                advantage[t] = a_t
+            advantage[len(reward_G_arr)-1] = reward_G_arr[len(reward_G_arr)-1] - values[len(reward_G_arr)-1]
+            advantage = torch.tensor(advantage)
+            
+            ### SGD update ###
+            values = torch.tensor(values)
+            states = torch.tensor(state_arr, dtype=torch.float).unsqueeze(1)
+            old_probs = torch.tensor(old_prob_arr)
+            actions = torch.tensor(action_arr)
+            dist = Categorical(self.policy(states))
+            critic_value = self.critic(states)
+            critic_value = torch.squeeze(critic_value)
+            new_probs = dist.log_prob(actions)
+            prob_ratio = new_probs.exp() / old_probs.exp()
+            weighted_probs = advantage * prob_ratio
+            weighted_clipped_probs = torch.clamp(prob_ratio, 1-self.policy_clip, \
+                        1+self.policy_clip) * advantage
+            actor_loss = -torch.min(weighted_probs, weighted_clipped_probs).mean()
+            returns = advantage + values
+            critic_loss = (returns-critic_value)**2
+            critic_loss = critic_loss.mean()
+            total_loss = actor_loss + 0.5 * critic_loss
+            
         print("Policy has been updated successfully!")

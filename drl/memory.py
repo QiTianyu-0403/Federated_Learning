@@ -24,5 +24,10 @@ class Memory():
         self.done.append(tem.done.copy())
         
     def sample(self, i):
+        # print('++++++++++++++++++++')
+        # print(self.rewards)
+        # print(self.values)
+        # print(self.done)
+        # print('++++++++++++++++++++')
         return self.rewards[i], self.observers[i], self.actions[i], self.values[i], \
             self.probs[i], self.done[i]

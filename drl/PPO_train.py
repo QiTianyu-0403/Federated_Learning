@@ -42,11 +42,11 @@ class PPO_server(object):
             
             training_count += 1
             # server.run_epision(epoch_n, args)
-            if training_count >= args.epoch_agent:
+            if training_count > args.epoch_agent:
                 print("Round out, end this round! ")
                 break
             # accuracy = server.evaluate()
-            accuracy = random.randint(0,9)
+            accuracy = random.randint(10,40)
             print(f"Iter: {training_count}, accuracy: {accuracy}")
             reward = accuracy - last_accuracy
             self.tem.append_tem(reward, self.sec.obs, self.sec.action, self.sec.prob, self.sec.value, self.sec.don)
@@ -57,3 +57,4 @@ class PPO_server(object):
         self.tem.clear_tem()
         if (epoch_n+1) % 2 == 0:
             self.agent.learn(self.memory)
+            self.memory.clear_memory()
