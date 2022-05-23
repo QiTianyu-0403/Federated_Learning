@@ -46,7 +46,7 @@ class PPO_server(object):
                 print("Round out, end this round! ")
                 break
             # accuracy = server.evaluate()
-            accuracy = random.randint(10,40)
+            accuracy = function(state)
             print(f"Iter: {training_count}, accuracy: {accuracy}")
             reward = accuracy - last_accuracy
             self.tem.append_tem(reward, self.sec.obs, self.sec.action, self.sec.prob, self.sec.value, self.sec.don)
@@ -55,6 +55,13 @@ class PPO_server(object):
         # Memory save
         self.memory.push(self.tem)
         self.tem.clear_tem()
-        if (epoch_n+1) % 2 == 0:
+        if (epoch_n+1) % 5 == 0:
             self.agent.learn(self.memory)
             self.memory.clear_memory()
+        return accuracy
+            
+def function(state):
+    a = state[0]
+    b = state[1]
+    return -(a-2)**4 - (b-3)**4
+

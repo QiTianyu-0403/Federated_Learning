@@ -122,6 +122,7 @@ class Agent(object):
         self.gamma = 0.9
         self.gae_lambda = 0.9
         self.policy_clip = 0.2
+        self.loss = 0
 
     def choose_action(self, observer):
         action, probs = self.policy.select_action(observer.unsqueeze(0).unsqueeze(0))
@@ -131,7 +132,7 @@ class Agent(object):
     def learn(self, memory):
         ### compute one trajectory ###
         for i in range(len(memory.rewards)):
-            reward_arr, state_arr, action_arr, vals_arr, old_prob_arr, dones_arr = memory.sample(i)
+            reward_arr, state_arr, action_arr, vals_arr, old_prob_arr, dones_arr, indi = memory.sample(i)
             reward_G_arr = torch.zeros(len(dones_arr))
             num_T = 0
             
@@ -139,7 +140,7 @@ class Agent(object):
             for index, flag in enumerate(dones_arr):
                 reward_G_arr[index] = 0
                 if flag == True: 
-                    reward_G_arr[index] = reward_arr[num_T]
+                    reward_G_arr[index] = float(reward_arr[num_T])
                     num_T += 1
             
             ### compute advantage ###
@@ -157,21 +158,27 @@ class Agent(object):
             
             ### SGD update ###
             values = torch.tensor(values)
-            states = torch.tensor(state_arr, dtype=torch.float).unsqueeze(1)
-            old_probs = torch.tensor(old_prob_arr)
-            actions = torch.tensor(action_arr)
+            states = torch.tensor(state_arr[indi], dtype=torch.float).unsqueeze(1)
+            old_probs = torch.tensor(old_prob_arr[indi])
+            actions = torch.tensor(action_arr[indi])
             dist = Categorical(self.policy(states))
             critic_value = self.critic(states)
             critic_value = torch.squeeze(critic_value)
             new_probs = dist.log_prob(actions)
             prob_ratio = new_probs.exp() / old_probs.exp()
-            weighted_probs = advantage * prob_ratio
+            weighted_probs = advantage[indi] * prob_ratio
             weighted_clipped_probs = torch.clamp(prob_ratio, 1-self.policy_clip, \
-                        1+self.policy_clip) * advantage
+                        1+self.policy_clip) * advantage[indi]
             actor_loss = -torch.min(weighted_probs, weighted_clipped_probs).mean()
-            returns = advantage + values
+            returns = advantage[indi] + values[indi]
             critic_loss = (returns-critic_value)**2
             critic_loss = critic_loss.mean()
             total_loss = actor_loss + 0.5 * critic_loss
+            self.loss  = total_loss
+            self.actor_optim.zero_grad()
+            self.critic_optim.zero_grad()
+            total_loss.backward()
+            self.actor_optim.step()
+            self.critic_optim.step()
             
         print("Policy has been updated successfully!")

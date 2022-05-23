@@ -20,7 +20,7 @@ def main():
     parser.add_argument("-m", "--model", help="resnet18 or lstm or cnn or mobilenet", type=str, default='cnn')
     parser.add_argument("-d", "--data", help="Cifar or  MINIST or FMNIST or Shakespeare", type=str, default='Cifar')
     parser.add_argument("-bs", "--batchsize", help="the batch size of each epoch", type=int, default=128)
-    parser.add_argument("-e", "--EPOCH", help="the number of epochs", type=int, default=2)
+    parser.add_argument("-e", "--EPOCH", help="the number of epochs", type=int, default=800)
     parser.add_argument("-lr", "--learning_rate", help="learning rate", type=float, default=0.01)
     parser.add_argument("-nm", "--noniid_model", help="quantity_noniid or label_noniid or iid", type=str, default='iid')
     parser.add_argument("-iu", "--idx_user", help="Select the client number(<=num_users)", type=int, default=0)
@@ -42,7 +42,7 @@ def main():
     '''DRL'''
     parser.add_argument("-tf", "--traj_fre", help="The frequency of trajector", type=int, default=5)
     parser.add_argument("-ea", "--epoch_agent", help="The epoch of agent to learn", type=int, default=10)
-    parser.add_argument("-g", "--greedy", help="select greedy", type=float, default=0.1)
+    parser.add_argument("-g", "--greedy", help="select greedy", type=float, default=0.01)
     args = parser.parse_args()
 
     """

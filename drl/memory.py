@@ -1,3 +1,5 @@
+import numpy as np
+
 class Memory():                 
     def __init__(self):
         self.observers = []
@@ -29,5 +31,7 @@ class Memory():
         # print(self.values)
         # print(self.done)
         # print('++++++++++++++++++++')
-        return self.rewards[i], self.observers[i], self.actions[i], self.values[i], \
-            self.probs[i], self.done[i]
+        indi = np.arange(len(self.observers), dtype=np.int64)
+        np.random.shuffle(indi)
+        return np.array(self.rewards[i]), np.array(self.observers[i]), np.array(self.actions[i]), \
+            np.array(self.values[i]), np.array(self.probs[i]), np.array(self.done[i]), indi

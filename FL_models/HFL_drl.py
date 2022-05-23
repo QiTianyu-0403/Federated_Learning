@@ -1,4 +1,5 @@
 import os
+from typing import List
 import torch.distributed.rpc as rpc
 import torch
 import torch.nn.functional as F
@@ -10,6 +11,7 @@ import init.init_resnet18 as resnet18_module
 import init.init_lstm as lstm_module
 from drl.PPO_train import PPO_server
 from collections import OrderedDict
+import matplotlib.pyplot as plt
 
 
 class Server(object):
@@ -305,10 +307,15 @@ def run_worker(args):
             os.remove("./acc/" + "acc_" + args.model + "_" + args.data + ".txt")
         
         ppo_server = PPO_server(args)
+        acclist = []
         # The 1st epoch Server_Round
         for i in range(args.EPOCH):
-            ppo_server.train(i, args)
+            acc = ppo_server.train(i, args)
+            acclist.append(acc)
             # server.run_edge_episode(i, args)
+        x = list(range(len(acclist)))
+        plt.plot(x,acclist)
+        plt.show()
 
     elif 0 < args.rank < args.topo_num[0]:
         os.environ['MASTER_ADDR'] = args.addr
