@@ -7,6 +7,7 @@ import FL_models.FedAvg as FL
 import FL_models.HierFL as HFL
 import FL_models.HFL_drl as HFL_drl
 import FL_models.FedAvg_ray as FL_ray
+import FL_models.HFL_ray as HFL_ray
 
 def main():
     """
@@ -31,7 +32,7 @@ def main():
     parser.add_argument("-nc", "--num_class", help="The classes number of noniid (<=10) ", type=int, default=2)
 
     '''Federated Learning'''
-    parser.add_argument("-fm", "--FL_model", help="the model of FL: FL/HFL", type=str,default="FL_ray")
+    parser.add_argument("-fm", "--FL_model", help="the model of FL: FL/HFL", type=str,default="HFL_ray")
     parser.add_argument("-p", "--port", help="the port used for rpc initialization", type=str,default="29500")
     parser.add_argument("-a", "--addr", help="the addr used for server", type=str, default="192.168.0.105")
     parser.add_argument("-r", "--rank", help="rank of this process", type=int, default=0)
@@ -73,6 +74,8 @@ def main():
         HFL_drl.run_worker(args)
     elif args.FL_model =='FL_ray':
         FL_ray.run_worker(args)
+    elif args.FL_model == 'HFL_ray':
+        HFL_ray.run_worker(args)
 
 
 if __name__ == "__main__":
