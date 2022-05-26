@@ -107,3 +107,7 @@ In this way we can get the number of data from 10 classes as ``0:[33 33 33 33 33
 ### FL
 
 If you want to run FL, you should set the file in ``main.py``. You can run this code in different equipments.
+
+---
+
+_**About the result you can ask me via email. The project is still being updated...**_
